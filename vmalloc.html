@@ -1,0 +1,22 @@
+<html>
+<font face="helvetica">
+<title>Memory Allocation - vmalloc</title>
+<body>
+<p align=center><font size=+5>Memory Allocation - vmalloc</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li>vmalloc/vfree
+<ul>
+<li>vmalloc will return a virtual address of a chunk of memory.
+<li>Memory obtained with vmalloc is not necessarily physically contiguous,
+the pages may be all over the place.
+<li>Memory obtained with vmalloc is not (at least not easily) DMA-able
+<li>Use vmalloc when you need memory for a purely software construct
+which does not need to be touched by any device.
+</ul>
+</ul>
+</font>
+</body>
+</html>

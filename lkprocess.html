@@ -1,0 +1,44 @@
+<html>
+<font face="helvetica">
+<title>The linux kernel development process</title>
+<body>
+<p align=center><font size=+5>the linux kernel development process</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li>Developers (that's you) make "patches" -- sets of
+changes -- to the source code
+<li>These patches are sent via email to the 
+<a href="http://marc.info/?l=linux-kernel">Linux Kernel Mailing List</a>
+(linux-kernel@vger.kernel.org) or one of the subsystem mailing lists (e.g.: perhaps the
+<a href="http://marc.info/?l=linux-scsi">linux-scsi mailing list</a>
+linux-scsi@vger.kernel.org).
+<font size=-1>Note: don't try to use Outlook, Yahoo mail, Gmail, Hotmail, as they
+will destroy your patches, and don't send patches as attachments,
+they should be inline.  Use a mailer like pine or mutt which will
+preserve your patch intact.</font>
+<li>The patch is reviewed, you fix whatever they complain about, (or argue
+why your way is better.)
+<Li>The maintainer of whatever subsystem, and/or Andrew Morton incorporates
+your patch into their tree.  (Andrew Morton's "MM" tree is here:
+<a href="http://userweb.kernel.org/~akpm/mmotm/">http://userweb.kernel.org/~akpm/mmotm/</a>, in patch form.)
+<li>Eventually your patch(es) move into Linus's tree.
+</ul>
+There is kind of a schedule though:
+<ul>
+<li>After each release of the kernel (watch http://kernel.org), there is a
+"two week merge window" during which patches for the next kernel are
+submitted.
+<li>After the two week merge window closes, it's only minor bug fixes until
+the next kernel comes out and the next merge window starts.
+<li>It's generally best to have your patches already in some maintainer's
+sub tree prior to the merge window.
+<li>You don't have a lot of control over when or if your patches will 
+make it into anyone's tree -- is this a bit frustrating?  Yes, yes it is.
+That's just how it is.
+</ul>
+
+</font>
+</body>
+</html>

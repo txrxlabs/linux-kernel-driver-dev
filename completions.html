@@ -1,0 +1,104 @@
+<html>
+<font face="helvetica">
+<title>Completions</title>
+<body>
+<p align=center><font size=+5>Completions</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<li>
+<p>Sometimes your driver may need to wait for some
+event to occur.  A typical scenario might be that the driver
+sends some command down to a device and then sleeps until
+that operation completes and then continue.  For example,
+if it were a disk controller driver it might need to send
+down a command to write some data to a disk drive, and
+considering the CPU speed, this operation may take awhile.
+
+<p>When the command completes on the disk drive, the interrupt
+handler will get called.  The interrupt handler does not have
+the same process context as the code which initiated the command.
+
+<p>The process which initiated the command is hanging around sleeping.
+So, how does the interrupt handler wake up the sleeping process so that
+it knows its requested operation has been completed and that it can
+continue?
+
+<p>This is what completions are for.
+
+<p>See include/linux/completion.h
+
+<p>There are a couple of macros to declare completions, 
+DECLARE_COMPLETION, and DECLARE_COMPLETION_ONSTACK.  The
+latter is used when you're storing your completion on the
+kernel stack (e.g. in the local variable of a function.)
+
+<p>There is a function, "wait_for_completion()" which will
+sleep until the event it is waiting for "completes".
+
+<p>The completion of the event is signalled by calling another
+function, "complete()".
+
+<p>An example (from the hpsa driver) should help clarify this
+
+<hr>
+<pre>
+static inline void hpsa_scsi_do_simple_cmd_core(struct ctlr_info *h,
+        struct CommandList *c)
+{
+	DECLARE_COMPLETION_ONSTACK(wait);
+
+	c-&gt;waiting = &amp;wait;
+	enqueue_cmd_and_start_io(h, c);
+	<font color="red">wait_for_completion(&amp;wait);</font>
+}
+</pre>
+<hr>
+
+<p>The above function declares a completion on the stack, then
+calls a function called enqueue_cmd_and_start_io -- which
+submits some commands down to a device, and then it calls
+wait_for_completion().  Wait for completion goes to sleep
+until the thing it's waiting for occurs.
+
+<p>When whatever command was submitted completes on the device,
+the interrupt handler is called, and eventually the interrupt
+handler executes this code:
+
+<hr>
+<pre>
+static inline void finish_cmd(struct CommandList *c, u32 raw_tag)
+{
+        removeQ(c);
+        if (likely(c-&gt;cmd_type == CMD_SCSI))
+                complete_scsi_command(c, 0, raw_tag);
+        else if (c-&gt;cmd_type == CMD_IOCTL_PEND)
+                <font color="red">complete(c-&gt;waiting);</font>
+}
+</pre>
+<hr>
+<p>The call to "complete()" which happens in the interrupt
+handler causes the thread of execution which is sleeping inside
+the "wait_for_completion()" to wake up and continue.  
+
+<p>There are other variants of wait_for_completion:
+<pre>
+extern void wait_for_completion(struct completion *);
+extern int wait_for_completion_interruptible(struct completion *x);
+extern int wait_for_completion_killable(struct completion *x);
+extern unsigned long wait_for_completion_timeout(struct completion *x,
+                                                   unsigned long timeout);
+extern long wait_for_completion_interruptible_timeout(
+        struct completion *x, unsigned long timeout);
+extern long wait_for_completion_killable_timeout(
+        struct completion *x, unsigned long timeout);
+extern bool try_wait_for_completion(struct completion *x);
+extern bool completion_done(struct completion *x);
+
+extern void complete(struct completion *);
+extern void complete_all(struct completion *);
+
+</pre>
+</font>
+</body>
+</html>

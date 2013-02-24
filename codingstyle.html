@@ -1,0 +1,39 @@
+<html>
+<font face="helvetica">
+<title>Coding Style</title>
+<body>
+<p align=center><font size=+5>Coding Style</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li>Why is coding style important? 
+<ul>
+<li><b>Because
+if you do not follow the prescribed style,
+your patches will not be accepted.</b>
+</ul>
+<li>Read <a href="http://www.kernel.org/doc/Documentation/CodingStyle">Documentation/CodingStyle</a>
+<li>Run scripts/checkpatch.pl on your patches early and often and
+<em>always</em> prior to submitting patches to lkml.
+<pre>
+<em>do {</em>
+	stg push
+	<em>do {</em>
+		stg show | ./scripts/checkpatch.pl -
+		<em>fix whatever checkpatch finds</em>
+		stg refresh
+	<em>} until checkpatch doesn't find anything</em>
+<em>} until all your patches are pushed on. </em>
+</pre>
+<li>Don't write 1000 lines of code and <em>then</em> try to 
+run checkpatch.pl.
+<li>Especially do not make a bunch of patches, and then try
+to run checkpatch on them all.  Run checkpatch as you go.  If
+you don't do this, then when you fix the things checkpatch
+finds in the early patches, later patches will break
+when you push them on after fixing the earlier patches.
+</ul>
+</font>
+</body>
+</html>

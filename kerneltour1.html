@@ -1,0 +1,34 @@
+<html>
+<font face="helvetica">
+<title>Kernel Tour</title>
+<body>
+<p align=center><font size=+5>Kernel Tour</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<p>The linux kernel is essentially a resource manager.
+It manages memory, cpu, storage, etc. but otherwise
+just tries to keep out of the way of user processes
+doing the real work.
+
+<p>Tools for browsing and searching the linux kernel
+<ul>
+<li><a href="http://lxr.linux.no/#linux+v2.6.38">Linux 2.6.38 LXR</a>
+<li><a href="http://cscope.sourceforge.net/">cscope</a>
+<li>Old fashioned way:
+<pre><font face="monospace">
+	find . -name '*.[ch]' -print | xargs grep <em>whatever</em>
+</font></pre>
+</ul>
+
+<p>There are three main kinds of entry points
+into the kernel:
+<ul>
+<li><a href="kboot1.html">Booting (or kexec'ing)</a>
+<li><a href="kernsyscall.html">System Calls</a>
+<li><a href="kerninter.html">Interrupts</a>
+</ul>
+<p align=right><a href="kerneltour2.html">Next</a>
+</font>
+</body>
+</html>

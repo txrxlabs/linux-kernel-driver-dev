@@ -1,0 +1,43 @@
+<html>
+<font face="helvetica">
+<title>Configuring the Kernel</title>
+<body>
+<p align=center><font size=+5>Configuring the Kernel</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<p>Configuring the kernel amounts to creating a .config file.
+There are several ways to approach this.
+<ul>
+<li><b>Method 1</b>  Copy the .config file from the kernel
+already running on your system, and run "make oldconfig"
+and then press <em>Enter</em> a whole bunch.  This method
+has the advantage that it is very likely to work without
+problems.  It has the disadvantage that the .config file
+of most distros is deliberately very general purpose, and
+consequently compiles a ton of stuff you do not need which
+makes the compiling process take longer.  On some distros
+(e.g. SuSE) you can find the running kernel config file in
+/proc/config.gz.  For redhat, you may have to install a 
+kernel source RPM, then run "rpmbuild -bp" on the .spec 
+file in /usr/src/redhat/..., and recover the generated 
+.config file from the /usr/src/redhat/.../BUILD directory.
+No idea about how ubuntu does it.
+
+<li><b>Method 2</b>  Customize the kernel config file with
+"make menuconfig".  This option has the advantage that you
+can omit modules for hardware which you do not have, thus
+saving compile time, but has the disadvantage that it takes
+time to manually omit these items, and it is easy to make a
+mistake which will cause the system to either not boot or 
+be missing some functionality (e.g. network, sound, etc.)
+</ul>
+<p>If you choose to customize your kernel, the "lspci" and
+"lsmod" and "modinfo" commands can help you discover what
+hardware and modules you currently have running.  For example,
+via lspci you may discover that you have an Intel network
+adapter.  From this you can infer that you may omit any drivers
+for non-intel network adapters from the kernel configuration.
+</font>
+</body>
+</html>

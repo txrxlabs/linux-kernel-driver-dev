@@ -1,0 +1,36 @@
+<html>
+<font face="helvetica">
+<title>Kernel Modules</title>
+<body>
+<p align=center><font size=+5>Kernel Modules</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li><b>What is the smallest possible module?</b>
+<pre><font face="monospace">
+#include &lt;linux/module.h&gt;
+
+MODULE_AUTHOR("Stephen M. Cameron &gt;scameron@beardog.cce.hp.com&lt;");
+MODULE_DESCRIPTION("Demo driver");
+MODULE_LICENSE("GPL");
+
+static int __init demo_init(void)
+{
+	printk(KERN_WARNING "Hello from the demo driver\n");
+	return 0;
+}
+
+static void __exit demo_cleanup(void)
+{
+	printk(KERN_WARNING "Goodbye from the demo driver\n");
+}
+
+module_init(demo_init);
+module_exit(demo_cleanup);
+
+</font></pre>
+</ul>
+</font>
+</body>
+</html>

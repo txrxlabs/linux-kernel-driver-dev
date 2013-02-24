@@ -1,0 +1,54 @@
+<html>
+<font face="helvetica">
+<title>Interrupts</title>
+<body>
+<p align=center><font size=+5>Interrupts</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li>First, know that I'm going to grossly oversimplify this.
+<ul>
+<li>
+<font size=-1>If you simply must have a taste of the nitty gritty
+details, have look at Chapter 4 of 
+<a href="http://book.opensourceproject.org.cn/kernel/kernel3rd/">
+Understanding the Linux Kernel (3rd edition)</a></font>
+</ul>
+<li>Interrupt == IRQ == Interrupt ReQuest.
+<li>When something happens on a device that the CPU needs to know about,
+the device <em>interrupts</em> the CPU.
+For example, maybe an i/o operation the CPU asked the device to perform
+has completed, or maybe a network packet has arrived.  Presumably the CPU
+wants to know about these kinds of things.
+<li>How does the device interrupt the CPU?
+<ul>
+<li>Old way: The device changes the voltage on a physical wire that is connected
+to a programmable interrupt controller (PIC -- or I/O APIC)
+chip which in turn changes the voltage on some wires connected to the CPU.
+<li>New way (MSI/MSIX): The device does a memory write (DMA) to a pre-arranged 
+memory address and some magic chunk of hardware in the path
+notices this fact and changes a voltage on a wire connected to the CPU.
+</ul>
+<li>How does the CPU know which device has interrupted it?
+<ul>
+<li>It doesn't, not right away.  With each interrupt, there
+is a number transmitted to the CPU.
+<li>Old way: the PIC conveys this information to
+the CPU via a little 8-bit data bus.
+<li>New way (MSI/MSIX): The CPU reads the value stored in the
+special pre-arranged memory location.
+</ul>
+<li>The CPU then uses this number to look up in a table which functions
+(in various device drivers) to call.
+<li>It may be the case that multiple device drivers are called for
+a single number, if they are <em>sharing</em> an interrupt, or an IRQ.
+(i/o APIC only... MSI/MSIX interrupts are not shared.)
+<li>The CPU will call each of these <em>interrupt handlers</em>
+in turn.  It is up to the device driver to determine whether the
+interrupt is really mean for it (typically by querying some register
+on the device to ask the device "did you really interrupt me?")
+</ul>
+</font>
+</body>
+</html>

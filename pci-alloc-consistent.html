@@ -1,0 +1,40 @@
+<html>
+<font face="helvetica">
+<title>Memory Allocation - pci_alloc_consistent</title>
+<body>
+<p align=center><font size=+5>Memory Allocation - pci_alloc_consistent</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li>pci_alloc_consistent(); (also known as dma_alloc_coherent())
+<ul>
+<li>pci_alloc_consistent might sleep.
+<li>pci_alloc_consistent Can return regions larger than 128k.
+<li>pci_alloc_consistent returns physically contiguous regions
+suitable for DMA.
+<li>Memory from pci_alloc_consistent is coherent,
+and is not cached (though you may need to flush CPU buffers -- see DMA-API.txt.)
+<li>memory from pci_alloc_consistent is guaranteed
+to by physically addressable with 32-bits (is below the 4Gb boundary).
+<li>pci_alloc_consistent memory is a scarce resource try not to hog it all.
+</ul>
+<p>Example:
+<pre>
+	unsigned char *x;
+	dma_addr_t dma_handle; 
+
+        x = pci_alloc_consistent(h-&gt;pdev, sizeof(*x) * 10000, &amp;dma_handle);
+</pre>
+<p>x will be assigned a virtual address pointing to 10000 bytes.
+<p>dma_handle will be assigned a corresponding bus address (useable for DMA).
+<p>To free the memory:
+<pre>
+	pci_free_consistent(h-&gt;pdev, sizeof(*x) * 10000, x, dma_handle);
+</pre>
+
+
+	
+</font>
+</body>
+</html>

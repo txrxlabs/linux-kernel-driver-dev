@@ -1,0 +1,50 @@
+<html>
+<font face="helvetica">
+<title>Interrupts (part 2)</title>
+<body>
+<p align=center><font size=+5>Interrupts (part 2)</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li>How does the CPU know what function to call for a given IRQ?
+The device driver tells it by request_irq(), declared in interrupts.h:
+<pre>
+	static inline int __must_check
+	request_irq(unsigned int irq, irq_handler_t handler,
+		unsigned long flags, const char *name, void *dev)
+</pre>
+<li>How does the device driver know which IRQ number to use?
+We'll get to that in a minute.
+<li>What does the irq_handler_t look like?  It looks like this:
+<pre>
+	static irqreturn_t my_handler(int irq, void *dev_id);
+</pre>
+<li>What does the handler function have to do?
+Well, it depends on the device.  However, what it typically does is
+something like this:
+<pre>
+	static irqreturn_t my_handler(int irq, void *dev_id)
+	{
+		struct mydata *mydevice = dev_id;
+		unsigned long flags;
+
+		if (this_interrupt_is_not_for_me(mydevice)) /* dev specific */
+			return IRQ_NONE;
+
+		spin_lock_irqsave(&amp;mydevice-&gt;lock, flags);
+		process_the_interrupt(mydevice); /* device specific */
+		spin_unlock_irqrestore(&amp;mydevice-&gt;lock, flags);
+		return IRQ_HANDLED;
+	}
+</pre>
+<li>How is that the dev_id parameter to my_handler is so conveniently
+just exactly the information we need about our device?  Because the dev_id
+parameter is exactly the same thing that we pass as the dev parameter
+when we called request_irq().  In other words, we arrange for it to
+be just the information we need.
+</pre>
+</ul>
+</font>
+</body>
+</html>

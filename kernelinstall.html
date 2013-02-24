@@ -1,0 +1,26 @@
+<html>
+<font face="helvetica">
+<title>Installing the Kernel</title>
+<body>
+<p align=center><font size=+5>Installing the Kernel</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li>Just one step (as root):
+<pre>
+	# make install
+</pre>
+On many distros (e.g. RHEL5, RHEL6, SLES 11) that's it.  
+<br>
+<br>
+<li>Ubuntu requires additional steps:
+<pre>
+	# update-initramfs -c -k <em>kernel-version</em>
+	# update-grub
+</pre>
+</ul>
+So, what goes on <a href="makeinstall.html">behind the scenes of "make install"?</a>
+</font>
+</body>
+</html>

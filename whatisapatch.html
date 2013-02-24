@@ -1,0 +1,86 @@
+<html>
+<font face="helvetica">
+<title>What is a patch?</title>
+<body>
+<p align=center><font size=+5>What is a patch?</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li>There are two programs, "diff" and "patch".
+<li>diff compares the lines of two text files, and computes
+the difference between these files.  That is, if you ask diff
+to compute the difference between file A and B, it will output
+a set of instructions, P, which will transform A into B.
+<li>As a command, it would be "diff -u A B &gt; P"
+which you can think of algebraically as: "P = B - A"
+or as "compute the editing instructions to transform A into B".
+<li>
+<pre>
+[scameron@localhost ~]$ cat A
+this is line 1
+this is line 2 
+this is line three
+[scameron@localhost ~]$ cat B
+this is line 0
+this is line 1
+this is line 2 
+this is line 3 
+this is line 4
+[scameron@localhost ~]$ diff -u A B
+--- A	2011-06-13 07:31:22.799510717 -0500
++++ B	2011-06-13 07:31:46.180511362 -0500
+@@ -1,3 +1,5 @@
++this is line 0
+ this is line 1
+ this is line 2 
+-this is line three
++this is line 3 
++this is line 4
+[scameron@localhost ~]$ 
+</pre>
+<li>The "patch" program is used to apply the instructions
+computed by "diff" to a text file.
+<li>Note: The text file which you apply the patch does not need
+to be identical to the files which were used to compute
+the difference.
+<li>As a command:  "patch A &lt; P" will transform A into B.
+<li>Algebraically, you can think of the above command as "A + P = B"
+<li>Suppose you have two sets of code which are nearly the same but
+slightly differenct, A1 and A2.  Suppose You make a modification
+to A1 to produce B1.  Suppose you want to make the same modifcation
+to A2 to produce B2.  Instead of doing it manually, you can do:
+<pre>
+	diff -u A1 B1 &gt; P
+	patch A2 &lt; P &gt; B2
+</pre>
+<li>Example:
+<pre>
+[scameron@localhost ~]$ cat C
+this is line 0
+this is line 1
+this is line 2 
+this is line three
+[scameron@localhost ~]$ diff -u A B | patch C
+patching file C
+Hunk #1 succeeded at 2 (offset 1 line).
+[scameron@localhost ~]$ cat C
+this is line 0
+this is line 0
+this is line 1
+this is line 2 
+this is line 3 
+this is line 4
+[scameron@localhost ~]$
+</pre>
+<li>This is all well and good, but if you have a whole pile of 
+"diffs" or "patches" and they need to be applied in a particular
+order, and maybe you got them from somebody else and they do not
+all apply to your code base cleanly, you will find that managing
+patches with bare bones "diff" and "patch" will be far too cumbersome
+and far too much work.  Fortunately there are some better tools.
+
+</ul>
+</font>
+</body>
+</html>

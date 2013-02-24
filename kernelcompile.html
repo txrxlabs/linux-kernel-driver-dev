@@ -1,0 +1,44 @@
+<html>
+<font face="helvetica">
+<title>Compiling the Kernel</title>
+<body>
+<p align=center><font size=+5>Compiling the Kernel</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<p>Compiling the kernel amounts to typing
+"<font face="monospace">make"</font>
+<p>If you have multiple CPUs or CPU cores
+(<font face="monospace">grep
+processor /proc/cpuinfo</font>), you can use the "-j" option
+of <font face="monospace">make</font>  For example, if you
+have 8 CPU cores: 
+<pre><font face="monospace">
+	make -j8
+</font></pre>
+This will make things compiler faster.  Some people even
+use 4*number-of-cpus as the -j argument. 
+
+<p>If you use the -j argument, you may find that after an error, other
+jobs started concurrently by make continue to produce output,
+causing any diagnostics to scroll off the screen, and possibly
+causing to fail to realize that anything has gone wrong.  After
+running <font face="monospace">make -j8</font>, it's a good idea
+to check the status by:
+<pre><font face="monospace">
+	# echo $?
+	0
+	#
+</font</pre>
+The status should be zero.  If not, run make again, without
+the -j option to see what the errors are (or, of course
+you can try to scroll back in your terminal.)
+
+<p>Also, if you find yourself rebuilding the entire kernel
+after running <font face="monospace">make clean</font>, but
+with the same <font face="monospace">.config</font> file, 
+<font face="monospace"><a href="http://ccache.samba.org">ccache</a></font>
+can also help a lot to speed things up. 
+</font>
+</body>
+</html>

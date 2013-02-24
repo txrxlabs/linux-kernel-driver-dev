@@ -1,0 +1,113 @@
+<html>
+<font face="helvetica">
+<title>Contents</title>
+<body>
+<p align=center><font size=+5>Intro to linux kernel programming</font>
+<hr>
+<font size=+1>
+<p>Contents
+<ul>
+<li><a href="p1.html">Introduction</a>
+<li><a href="whatisthekernel.html">What is the kernel?</a>
+<li><a href="getkernel.html">Getting the kernel source</a>
+<ul>
+<li>Get it from your distro
+<li>Get a tarball from <a href="http://kernel.org">kernel.org</a>
+<li>Use git to get it from <a href="http://git.kernel.org">git.kernel.org</a>
+</ul>
+<li>Building the kernel
+<ul>
+<li><a href="kernelconfig.html">Configuring the kernel</a>
+<li><a href="kernelcompile.html">Compiling the kernel</a>
+<li><a href="kernelinstall.html">Installing the kernel</a>
+<ul>
+<li>Installing modules into /lib/modules
+<li>Installing vmlinuz into /boot
+<li>making a new initial ram disk initial RAM fs
+<li>modifying /boot/grub/menu.lst
+<li><a href="makeinstall.html">Behind the scenes of "make install"</a>
+</ul>
+</ul>
+<li><a href="kerneltour1.html">Brief tour of the kernel</a>
+<ul>
+<li>Tools for browsing and searching the kernel source
+<li>Kernel entry points
+<ul>
+<li><a href="kboot1.html">Booting (or kexec'ing)</a>
+<li><a href="kernsyscall.html">System calls</a>
+<li><a href="kerninter.html">Interrupts</a>
+</ul>
+<li><a href="kerneltour2.html">View of the top level directories
+	in the kernel source tree</a>
+</ul>
+<li><a href="makingpatches.html">Making Patches</a>
+<ul>
+<li><a href="lkprocess.html">The linux kernel development process</a>
+<li><a href="whatisapatch.html">What is a patch?</a>
+<li><a href="http://userweb.kernel.org/~akpm/stuff/tpp.txt">
+	Andrew Morton's "The Perfect Patch"</a>
+<li>Tools for making, applying, and manipulating patches
+<ul>
+<li><a href="using_stgit.html">Stacked git</a>
+<li><a href="/using_stgit.html#patchutils">Patch utils</a>
+<li><a href="using_stgit.html#wiggle">wiggle</a>
+</ul>
+</ul>
+<li><a href="module.html">Making your own kernel module</a>
+<ul>
+<li>What is a kernel module?
+<li>Manipulating modules
+<ul>
+<li>Loading modules: insmod, modprobe
+<li>Unloading modules: rmmod
+<li>lsmod
+<li>modinfo
+</ul>
+<li><a href="module2.html">Trivial module code</a>
+<ul>
+<li>Modify Kconfig and Makefile
+<li>module macros
+<li>init and cleanup entry points
+<li><a href="codingstyle.html">Coding style and checkpatch.pl</a>
+</ul>
+<li>Registering a platform device
+<li>Registering a char device on driver load
+<li>Unregistering your char device on driver unload
+<li>File operations
+<ul>
+<li>open
+<li>read
+<li>write
+<li>ioctl
+</ul>
+<li>Register a class (to enable udev to create device nodes)
+<li>Register a class device (to enable udev to create device nodes)
+<li>Adding some debug code
+<li>spinlocks
+</ul>
+<li>Three types of memory addresses
+<ul>
+<li>Virtual -- what you use 99% of the time
+<li>Bus -- what you pass to devices that need to do DMA
+<li>Physical -- what you pass to ioremap(), kmap(), etc.
+</ul>
+<li>Memory allocation
+<ul>
+<li><a href="kmalloc.html">kmalloc</a>
+<li><a href="pci-alloc-consistent.html">pci_alloc_consistent</a>
+<li><a href="vmalloc.html">vmalloc</a>
+<li><a href="ioremap.html">ioremap</a>
+</ul>
+<li><a href="DMA.html">DMA -- Direct Memory Access</a>
+<li><a href="DMA2.html">More about DMA</a>
+<li><a href="interrupts.html">Interrupts</a>
+<li><a href="interrupts2.html">More about interrupts</a>
+<li><a href="interrupts3.html">Even more about interrupts</a>
+<li><a href="completions.html">wait_for_completion(), complete()</a>
+<li><a href="sleeping.html">Sleeping and delaying</a>
+<li><a href="debugging.html">debugging</a>
+<li><a href="further_reading.html">Further Reading</a>
+</ul>
+</font>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<html>
+<font face="helvetica">
+<title>Kernel Modules</title>
+<body>
+<p align=center><font size=+5>Kernel Modules</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li><b>What is a kernel module?</b>
+<p>A kernel module is a chunk of the kernel which
+can be dynamically loaded and unloaded (though they
+can typically be compiled statically into the kernel
+as an option.)   
+<p>There are zillions of devices out there,
+each with their own driver.  A typical system only has
+a tiny fraction of all those devices actually present.
+Dynamically loading the drivers means that you only
+use the memory and cpu for devices which you actually
+have.  
+<li><b>Loading modules: modprobe, insmod</b>
+<p>Kernel modules are loaded via the commands 
+<font face="monospace">insmod</font>, or 
+<font face="monospace">modprobe</font>.
+<font face="monospace">insmod</font> loads
+the particular *.ko file you tell it to load,
+while modprobe searches for the module *.ko
+file in /lib/modules/<em>kernel-version</em>
+directory.
+<li><b>Unloading modules</b>: Modules are unloaded with the <font face="monospace">rmmod</font>.
+<li><b><font face="monospace">lsmod</font></b>
+shows you what modules are currently loaded
+<li><b><font face="monospace">modinfo</font></b>
+shows you information about a particular module
+</ul>
+<p align=right><a href="module2.html">Next</a>
+</font>
+</body>
+</html>

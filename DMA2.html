@@ -1,0 +1,44 @@
+<html>
+<font face="helvetica">
+<title>More about DMA</title>
+<body>
+<p align=center><font size=+5>More about DMA</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li>Memory allocated with <b>dma_alloc_coherent</b>
+(or <b>pci_alloc_consistent</b>) is not cached, and is
+DMA-able at any time, in either direction.  (you may have to flush
+the processor's write buffers however (see Documentation/DMA-API.txt)
+<li>Memory allocated with kmalloc() must be <em>mapped</em> for DMA
+prior to the DMA operation, and <em>unmapped</em> afterwards.
+<li><b>dma_map_single(), dma_unmap_single()</b>.<br>
+"Mapping" a kmalloc'ed region of memory for DMA with dma_map_single
+(or pci_map_single) does a few things:
+<ul>
+<li>Provides you with a bus address to give the device.
+<li>Synchronizes the cache (for writes, flushes the cache, for
+reads, might discard the cache lines at this point.)
+<li>On some archictecturs (e.g. PowerPC) it may program PCI bridges
+up to do bus address/physical address translations.
+</ul>
+"Unmapping" a kmalloc'ed region of memory for DMA with dma_unmap_single
+(or pci_unmap_single) does a few things.
+<ul>
+<li>Synchronizes the cache (for writes, nothing here, for reads,
+it may discard cache entries at this point, if it wasn't done at 
+map time.)
+<li>(on some architectures) discard any pci bridge
+address translations the mapping had set up.
+</ul>
+<li><b>dma_map_page(), dma_unmap_page()</b>. -- same as *_map_single, but
+a page at a time.
+<li><b>dma_sync_single_for_device(), dma_sync_single_for_cpu()</b>
+If you leave regions mapped for DMA, you can use them multiple
+times, and depending on your transfer direction use these to sync
+the cache with memory as necessary.
+</ul>
+</font>
+</body>
+</html>

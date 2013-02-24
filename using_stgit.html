@@ -1,0 +1,831 @@
+<html>
+<font face="helvetica">
+<title>stgit -- Stacked git</title>
+<body>
+<p align=center><font size=+5>stgit -- Stacked git</font>
+<hr>
+<a href="contents.html">Back to top</a>
+<h2>Contents</h2>
+<ul>
+<li><a href="#whatisit">Stgit -- what is it?"</a>
+<li><a href="#gettinggit">Getting, compiling, and installing git</a>
+<li><a href="#getstgit">Getting, building, and installing stgit</a>
+<li><a href="#kernelstgit">Using stgit in a linux kernel tree</a>
+<li><a href="#cvsstgit">Using stgit with CVS or SVN</a>
+<li><a href="#patchscript">Patch-script equivalents, and differences</a>
+<li><a href="#usagecases">Some usage cases</a>
+	<ul>
+	<li><a href="#stgcvs">Using stg on top of cvs</a>
+	<li><a href="#newpatch">Adding a new patch</a>
+	<li><a href="#seepatch">How to see the patches</a>
+	<li><a href="#morepatch">Adding some more patches</a>
+	<li><a href="#reorder">Reordering patches and resolving conflicts</a>
+	<li><a href="#export">Exporting patches</a>
+	<li><a href="#cvscommit">Committing patches to CVS</a>
+	<li><a href="#combine">Combining patches</a>
+	<li><a href="#split">Splitting patches</a>
+	</ul>
+<li><a href="#pitfalls">Some pitfalls</a>
+<li><a href="#additionaltools">Additional tools you may find helpful.</a>
+<li><a href="#competition">Stgit's competition</a>
+</ul>
+<hr>
+<a name="whatisit">
+<h3>Stgit -- what is it</h3></a>
+<p>Here are some more instructions:
+<a href="http://www.procode.org/stgit/doc/tutorial.html">
+http://www.procode.org/stgit/doc/tutorial.html</a>.
+<p>"Stacked git" or "stg" uses git to manage a stack of patches
+on top of your source code.  It allows you to easily maintain
+a set of patches, easily change the order in which they are
+applied, easily modify your source and control which patches
+changes end up in.
+
+<p>Stacked git is the concept of Andrew Morton's patch-scripts,
+or quilt, implemented on top of git.  It is better than the patch
+scripts in several ways.  Probably the most important difference is that
+it does away with the need to inform the system of which files you
+intend to modify.  With the patch-scripts, or quilt, forgetting to
+"fpatch", or "quilt edit/add" files was one of the easiest and most
+common ways to shoot yourself in the foot.  stgit figures out what
+files you've changed automatically.
+<a name="gettinggit">
+<h3>Getting, compiling, and installing git</h3></a>
+<p>Most likely, you can get it from your distro
+(e.g. apt-get install git on ubuntu, yum install git on Fedora/redhat,
+via yast on SLES)
+
+<p>Or, you can get git source here:
+<a href="http://git-scm.com/">http://git-scm.com/</a>
+<p>Build it with the usual "./configure ; make ; (as root) make install"
+(on  sles, you'll need the zlib-devel package).
+
+<p>You need to tell git who you are.  You only need to do this once
+per user per system.  (the data is stored in ~/.git/)
+
+<pre><font face="monospace">
+	git config --global user.name "Your Name"
+	git config --global user.email "your.email@whatever.com"
+</font></pre>
+<a name="getstgit">
+<h3>Getting, building, and installing stgit</h3></a>
+<p>Get stgit here: <a href="http://www.procode.org/stgit/">http://www.procode.org/stgit/</a>
+It's written in python.  You may need some extra packages installed, esp. on sles.
+Use yast2 to install python-devel, I think... it will resolve the dependencies, if
+you try to figure the dependencies out manually... good luck.
+<p>To build, unpack it and type:
+<pre><font face="monospace">
+make prefix=/usr/local
+sudo make prefix=/usr/local install
+</font></pre>
+
+<a name="kernelstgit">
+<h3>Using stgit in a linux kernel tree</h3></a>
+<p>After you unpack the kernel, you need to import it into git.
+<pre><font face="monospace">
+[scameron@zuul linux-2.6.29-rc6]$ git init
+Initialized empty Git repository in /home/scameron/kernels/linux-2.6.29-rc6/.git/
+[scameron@zuul linux-2.6.29-rc6]$ git add .
+[scameron@zuul linux-2.6.29-rc6]$ git commit 
+[scameron@zuul linux-2.6.29-rc6]$ git branch yourbranchname 
+[scameron@zuul linux-2.6.29-rc6]$ git checkout yourbranchname 
+</font></pre>
+The "git commit" command will open up your $EDITOR and ask for 
+a commit message.  Add a commit message like, "initial import of 2.6.29-rc6"
+
+<p>Once that's done, you can set up stgit.
+<pre><font face="monospace">
+[scameron@zuul linux-2.6.29-rc6]$ stg init
+[scameron@zuul linux-2.6.29-rc6]$
+</font></pre>
+Now you are ready to work with stgit in the kernel tree to create or import patches, etc.
+<a name="cvsstgit">
+<h3>Using stgit with CVS or SVN</h3></a>
+<p>Using stgit with cvs (or svn) is very similar to using it with the linux
+kernel with one important difference.  You need to create a .gitignore file to
+keep stgit from trying to incorporate CVS (or .svn) files into the patches.
+
+<pre><font face="monospace">
+[scameron@zuul cciss] cat &gt; .gitignore
+CVS/
+.svn/
+*.ko
+*.o
+^D
+[scameron@zuul cciss] git init 
+[scameron@zuul cciss] git add . 
+[scameron@zuul cciss] git commit 
+[scameron@zuul cciss] git branch yourbranchname
+[scameron@zuul cciss] git checkout yourbranchname 
+[scameron@zuul cciss] stgit init 
+</font></pre>
+Now you're ready to make or import patches into your CVS tree. 
+For an svn managed working directory the concept would 
+presumably be similar, except use ".svn/" instead of "CVS/"
+in the .gitignore file.
+<p>Note, if the CVS (or svn) repository changes, and you want to
+pick up those updates (that is, you would like to do a "cvs update"
+or "svn update") the way to do it is like this:
+<ol>
+<li>Use "stg export" to export your patches to protect against disaster.
+<li>Pop all your patches off.  If you have an initial patch called "cvsupdate"
+leave that one on (or push it back on).
+<li>Make a new patch called "cvsupdate"
+<li>Do the "cvs update"
+<li>do stg refresh.  This takes all the changes from the "cvs update" and
+stuffs them into the "cvsupdate" patch.
+<li>Push all your patches back on.
+</ol>
+Subsequent updates, you just do: "stg goto cvsupdate" and "cvs update" and "stg refresh",
+then "stg push -a".
+<p>You can maintain separate stacks of patches on separate branches
+if you wish, and switch between branches using "stg branch branchname"
+<p>You can see a list of branches by "stg branch --list"
+<a name="patchscript">
+<h3>Patch-script equivalents, and differences</h3></a>
+<table border=2>
+<tr><td><b>Patch-script command</b></td><td><b>stgit equivalent</b></td><td><b>Notable difference</b></a></tr>
+<tr>
+<tr><td>docco.txt</td>
+<td>stg help</td><td>The patch scripts had little documentation.  "stg help" 
+gives some decent documenation.  Additionally, use google.
+
+<p>stg help outputs the following:
+<pre><font face="monospace">
+usage: stg &lt;command&gt; [options]
+
+Generic commands:
+  help        print the detailed command usage
+  version     display version information
+  copyright   display copyright information
+
+Repository commands:
+  clone     Make a local clone of a remote repository
+  id        Print the git hash value of a StGit reference
+
+Stack (branch) commands:
+  branch    Branch operations: switch, list, create, rename, delete, ...
+  clean     Delete the empty patches in the series
+  commit    Permanently store the applied patches into the stack base
+  float     Push patches to the top, even if applied
+  goto      Push or pop patches to the given one
+  hide      Hide a patch in the series
+  init      Initialise the current branch for use with StGIT
+  log       Display the patch changelog
+  next      Print the name of the next patch
+  patches   Show the applied patches modifying a file
+  pop       Pop one or more patches from the stack
+  prev      Print the name of the previous patch
+  publish   Push the stack changes to a merge-friendly branch
+  pull      Pull changes from a remote repository
+  push      Push one or more patches onto the stack
+  rebase    Move the stack base to another point in history
+  redo      Undo the last undo operation
+  repair    Fix StGit metadata if branch was modified with git commands
+  reset     Reset the patch stack to an earlier state
+  series    Print the patch series
+  sink      Send patches deeper down the stack
+  squash    Squash two or more patches into one
+  top       Print the name of the top patch
+  uncommit  Turn regular git commits into StGit patches
+  undo      Undo the last operation
+  unhide    Unhide a hidden patch
+
+Patch commands:
+  delete    Delete patches
+  edit      edit a patch description or diff
+  export    Export patches to a directory
+  files     Show the files modified by a patch (or the current patch)
+  fold      Integrate a GNU diff patch into the current patch
+  import    Import a GNU diff file as a new patch
+  mail      Send a patch or series of patches by e-mail
+  new       Create a new, empty patch
+  pick      Import a patch from a different branch or a commit object
+  refresh   Generate a new commit for the current patch
+  rename    Rename a patch
+  show      Show the commit corresponding to a patch
+  sync      Synchronise patches with a branch or a series
+
+Index/worktree commands:
+  diff      Show the tree diff
+  status    Show the tree status
+</font></pre>
+</td></tr>
+
+<td>import_patch</td>
+<td>stg import -s directory/series-file</td>
+<td>import_patch does not attempt to apply the patches, but 
+stg import does.<p>Additionally, with the patch scripts, the easiest
+way to create a new patch was to import an empty patch.  With
+stg, the easiest way is with "stg new"
+<p>Since "stg import" also tries to apply the patch, if it doesn't
+apply, it leaves the unapplied patch in a .stgit-failed-patch file,
+which you may then resolve however you like (eg: using wiggle).
+<p>Beware, do not try something like this:
+<pre><font face="monospace">
+	for x in $somedir/*.patch
+	do
+		stg import $x
+	done
+</font></pre>
+As stg will attempt to import each patch in turn, and
+continue, even in the face of failures, making a mess.
+If you want to do that, do it this way:
+<pre><font face="monospace">
+	for x in $somedir/*.patch
+	do
+		stg import $x || exit 1
+	done
+</font></pre>
+</td>
+</tr>
+<tr>
+<td>export_patch</td><td>stg export -d directory</td><td>export_patch prefixes the filenames
+in such a way that they sort into the correct order.  "stg export" produces a "series" file
+which lists the patches in the correct order.  If the directory does not exist, stg will 
+create it.  If it does exist, and contains patches, those patches will be overwritten.</td></tr>
+
+<tr>
+<td>pstatus</td>
+<td>stg series, stg status</td>
+<td>pstatus showed the series file, which patches were applied, not applied, or unknown, and 
+whether the topmost patch needed to be refreshed ("Needs refpatch").  stg series shows the
+list of patches, which are applied ("+"), which are not applied ("-") and which is current
+("&gt;").  It does not show if the topmost patch needs refreshing.  "stg status" shows 
+which files have been modified since the topmost patch was refreshed, and thus, whether
+the topmost patch needs refreshing.  Additionally, if you try doing something without
+refreshing (like popping, pushing, etc.) that would mess things up, stgit won't let you.</td>
+</tr>
+<td>pushpatch</td>
+<td>stg push</td>
+<td>With pushpatch, you could say, "pushpatch n" where n was a number.  With
+stg, it's "stg push -n x" where x is a number.  pushpatch would stop if a patch
+failed, and you'd have to do "pushpatch -f" which would make it throw rejects.
+"stg push" will push regardless, and put inline conflict markers in the file,
+rather than throwing rejects.
+<p>Also, with "pushpatch," afterwards you had to do "refpatch."  You don't
+have to do "stg refresh" after "stg push" if the "stg push" works.  You
+only have to do it if you have to fix something that broke during the
+"stg push."
+<p>Sometimes "stg push" will say "(modified)" meaning that your patch
+went on ok, but it's modified a bit -- some context changed a bit, but
+the 3-way merge sorted it out.  You may wish to verify things are ok
+when that happens, and if not, change the files to make them ok, and 
+"stg refresh."  But, I think the "(modified)" warning is approximately
+like "patch" complianing about "offsets."
+</td>
+</tr>
+<tr>
+<td>poppatch</td>
+<td>stg pop</td>
+<td>stg pop won't allow you to pop an unrefreshed patch, 
+and I don't think it can fail like poppatch can.
+<p>As with stg push, you can pop a number of patches at once, for example, <em>stg pop -n 5</em></td>
+</tr>
+<tr>
+<td>n/a</td><td>stg goto <em>patchname</em></td><td>  Stg allows you to automatically
+push or pop patches as necessary to get a named patch to the top of
+your stack by <em>stg goto</em></td>
+</tr>
+<tr>
+<td>refpatch</td>
+<td>stg refresh</td>
+<td>stg refresh automatically figures what files to
+diff, rather than needing to be told via fpatch or similar</td>
+</tr>
+<tr>
+<td>fpatch</td>
+<td>N/A</td>
+<td>stg doesn't need anything like fpatch</td>
+</tr>
+<tr>
+<td>N/A</td>
+<td>stg squash</td>
+<td>
+<em>stg squash</em> combines patches.  If you have several patches you want to combine into one
+patch, use <em>stg push</em> and <em>stg pop</em> to arrange them next to each other in
+the order you like.  Supposing you have patches p1, p2, p3, and you want to combine them 
+into a single patch called bigpatch: <em>stg squash p1 p2 p3 -n bigpatch</em>
+</td>
+</tr>
+<tr>
+<td>N/A</td>
+<td>stg branch</td>
+<td>There are several stg branch commands.  You can have several stacks of patches on the
+same codebase, and switch between them with <em>stg branch &lt;branchname&gt;</em>.  You
+can see a list of the available branches via <em>stg branch --list</em>.  To create a new
+branch, do:
+<pre><font face="monospace">
+	stg branch master
+	git branch newbranchname
+	git checkout newbranchname
+	stg init
+</font></pre>
+
+Note, initially, "stg init" must be run on each branch.
+<p>Branches can be a way of checkpointing your work (though not as safe as
+<em>stg export</em>).  When you reach a point that you may wish to return to
+(when you're about to attempt something risky) you can export your
+patches, create a new branch, import your patches on the new branch,
+and then attempt the risky maneuver on the branch.  If you hose yourself, you can
+just switch back to the original branch, and be back where you started.
+(Alternately, just export the patches, and continue, and if it turns
+out you need to backtrack, create a new branch then, and import your
+exported patches to the new branch, and abandon the botched branch.)
+</td>
+</tr>
+<tr>
+<td>N/A</td>
+<td>git add filename<br>
+git rm filename</td>
+<td>When "stg push" results in conflicts, after you resolve the conflict, you have
+to tell stg that you consider the conflich resolved with "git add filename".
+No similar concept exists in the patch-scripts.  The use of "git add filename"
+for this purpose is horribly counterintuitive.  It used to be that you
+did "git resolved filename," which made much more sense, but this was
+removed, as apparently all it was doing under the covers was "git add
+filename."  The maintainer of stg knows that there are many complaints
+about this, and in future revisions of stg, "stg resolved" may re-appear.
+One would hope so, at any rate.
+<p>One thing to watch out for, if you have some *.orig files, and you
+apply patches with patch, and there are offsets, patch will overwrite
+those *.orig files, and then the diffs to those *.orig files will get
+incorporated into your patch by stg.  Best to not include *.orig files
+in git in the first place by adding *.orig into your .gitignore file.
+
+<p>If you have a conflict with a removed file vs. a modified file,
+(e.g. say a patch incorporated changes to a *.orig file, so you pop it off,
+create a new patch to remove the *.orig files, then push the first
+patch back on), the way to resolve the conflict is with "git rm file"
+</td>
+</tr>
+</table>
+<a name="usagecases">
+<h3>Some usage cases</h3></a>
+<ul>
+<li><b><a name="stgcvs">Using stg on top of cvs</a></b>
+Using stg on top of cvs is useful for "polishing" your changes prior
+to committing, so that later, when you want to extract those changes
+from cvs, for instance, to try to apply them to a different branch,
+you are not facing a giant CVS style merge, but instead, a bunch of 
+small, and one hopes, easily portable patches. 
+<p>To begin, assume you have a fresh CVS tree checked out.  Make
+sure you have a .gitignore file to prevent git from interfering with
+CVS's files:
+<pre><font face="monospace">
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>ls .gitignore</b>
+.gitignore
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>cat .gitignore</b>
+CVS/
+*.o
+*.ko
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>git init</b>
+Initialized empty Git repository in /home/scameron/src/2.6/cciss_4_6_22/.git/
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>git add .</b>
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>git commit</b>
+Created initial commit 8943fb2: initial commit
+ 18 files changed, 37124 insertions(+), 0 deletions(-)
+ create mode 100644 .gitignore
+ create mode 100644 Documentation/cciss.txt
+ create mode 100644 Documentation/mkdev.cciss
+ create mode 100644 Documentation/mkdev_dyn.cciss
+ create mode 100644 Documentation/rmdev_dyn.cciss
+ create mode 100644 drivers/block/.#cciss.c.1.7.2.6
+ create mode 100644 drivers/block/cciss.c
+ create mode 100644 drivers/block/cciss.h
+ create mode 100644 drivers/block/cciss_cmd.h
+ create mode 100644 drivers/block/cciss_scsi.c
+ create mode 100644 drivers/block/cciss_scsi.h
+ create mode 100644 include/linux/cciss_ioctl.h
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>git branch hp</b>
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>git checkout hp</b>
+Switched to branch "hp"
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg init</b>
+scameron@zuul:~/src/2.6/cciss_4_6_22$ 
+</font></pre>
+
+<li><b><a name="newpatch">Adding a new patch:</a></b><br>
+Position yourself in the patch series with the patch just
+prior to the patch you wish to make being applied, via "stg push"
+and "stg pop", then do "stg new patchname"<br>
+Then edit whatever you wish to edit, then do "stg refresh".  That's it.
+<pre><font face="monospace">
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg new some-new-patch</b>
+Invoking the editor: "vi .stgitmsg.txt" ... done
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>vi drivers/block/cciss.c</b>
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg refresh</b>
+Checking for changes in the working directory ... done
+Refreshing patch "some-new-patch" ... done
+</font></pre>
+<li><b><a name="seepatch">How to see the patches</a></b><br>"stg show" to show the topmost patch.  "stg show patchname" to show patches other than the topmost patch.
+<pre><font face="monospace">
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg show</b>
+commit 913e3473c55eb58b873f42ce31ef023d962365d9
+Author: Stephen M. Cameron &lt;scameron@beardog.cce.hp.com&gt;
+Date:   Tue Jan 12 11:38:49 2010 -0700
+
+    some-new-patch
+    some-new-patch
+
+diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+index e7493af..f5e5686 100644
+--- a/drivers/block/cciss.c
++++ b/drivers/block/cciss.c
+@@ -20,6 +20,10 @@
+  *
+  */
+ 
++just making some 
++bogus changes
++here 
++
+ #include &lt;linux/module.h&gt;
+ #include &lt;linux/interrupt.h&gt;
+ #include &lt;linux/types.h&gt;
+</font></pre>
+<li><b><a name="morepatch">Adding some more patches</a></b><br>
+<pre><font face="monospace">
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg series</b>
+&gt; some-new-patch
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg new another-patch</b>
+Invoking the editor: "vi .stgitmsg.txt" ... done
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>vi drivers/block/cciss.c</b>
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg refresh</b>
+Checking for changes in the working directory ... done
+Refreshing patch "another-patch" ... done
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg show</b>
+commit c8c02c6f505b263de50c8fcdc5e0d926e2369bb5
+Author: Stephen M. Cameron &lt;scameron@beardog.cce.hp.com&gt;
+Date:   Tue Jan 12 11:44:41 2010 -0700
+
+    another patch
+
+diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+index f5e5686..0063724 100644
+--- a/drivers/block/cciss.c
++++ b/drivers/block/cciss.c
+@@ -24,6 +24,9 @@ just making some
+ bogus changes
+ here 
+ 
++here's a change in
++another patch
++
+ #include &lt;linux/module.h&gt;
+ #include &lt;linux/interrupt.h&gt;
+ #include &lt;linux/types.h&gt;
+
+scameron@zuul:~/src/2.6/cciss_4_6_22$ stg <b>new yet-another-patch</b>
+Invoking the editor: "vi .stgitmsg.txt" ... done
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>vi drivers/block/cciss.c</b>
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg refresh</b>
+Checking for changes in the working directory ... done
+Refreshing patch "yet-another-patch" ... done
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg show</b>
+commit 8531ffe1b7258c887189b06d5b39492bb4dce37a
+Author: Stephen M. Cameron &lt;scameron@beardog.cce.hp.com&gt;
+Date:   Tue Jan 12 11:45:10 2010 -0700
+
+    yet another patch
+
+diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+index 0063724..419910c 100644
+--- a/drivers/block/cciss.c
++++ b/drivers/block/cciss.c
+@@ -24,6 +24,8 @@ just making some
+ bogus changes
+ here 
+ 
++here's some stuff in yet another patch
++
+ here's a change in
+ another patch
+ 
+scameron@zuul:~/src/2.6/cciss_4_6_22$
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg series</b>
++ some-new-patch
++ another-patch
+&gt; yet-another-patch
+scameron@zuul:~/src/2.6/cciss_4_6_22$
+</font></pre>
+<li><b><a name="reorder">Reordering patches and resolving conflicts</a></b><br>
+There are "stg float" and "stg sink" commands.  I have not tried them, so I don't know how they work, or if they work well.  You can
+also specify a patch name with "stg push," so another way to reorder things
+(which I have tried) is to pop off all the patches you want to reorder and
+then just "stg push" them back on in the order you want.  For example, let's reverse the order
+that another-patch and yet-another-patch are applied:
+<pre><font face="monospace">
+scameron@zuul:~/src/2.6/cciss_4_6_22$ stg series
++ some-new-patch
++ another-patch
+&gt; yet-another-patch
+scameron@zuul:~/src/2.6/cciss_4_6_22$ stg pop -n 2
+Checking for changes in the working directory ... done
+Popping patches "yet-another-patch" - "another-patch" ... done
+Now at patch "some-new-patch"
+scameron@zuul:~/src/2.6/cciss_4_6_22$ stg push yet-another-patch
+Checking for changes in the working directory ... done
+Pushing patch "yet-another-patch" ... 
+  CONFLICT (content): Merge conflict in drivers/block/cciss.c
+  Error: The merge failed during "push".
+         Revert the operation with "push --undo".
+  stg push: 1 conflict(s)
+scameron@zuul:~/src/2.6/cciss_4_6_22$
+</font></pre>
+Looking at cciss.c, we find this:
+<pre><font face="monospace">
+just making some
+bogus changes
+here
+
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; current:drivers/block/cciss.c
+=======
+here's some stuff in yet another patch
+
+here's a change in
+another patch
+
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; patched:drivers/block/cciss.c
+#include &lt;linux/module.h&gt;
+</font></pre>
+We modify it to look as it should with just some-patch and yet-another-patch applied:
+<pre><font face="monospace">
+ */
+
+just making some
+bogus changes
+here
+
+here's some stuff in yet another patch
+
+#include &lt;linux/module.h&gt;
+</font></pre>
+Then, try to refresh the patch:
+<pre><font face="monospace">
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg refresh</b>
+stg refresh: Unsolved conflicts. Please resolve them first or
+  revert the changes with "status --reset"
+</font></pre>
+Here, we have to tell stg that we have resolved the conflict in cciss.c.  That is
+done by the very counterintuitive "git add filename" command:
+<pre><font face="monospace">
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>git add drivers/block/cciss.c</b>
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg refresh</b>
+Checking for changes in the working directory ... done
+Refreshing patch "yet-another-patch" ... done
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg series</b>
++ some-new-patch
+&gt; yet-another-patch
+- another-patch
+scameron@zuul:~/src/2.6/cciss_4_6_22$
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg show</b>
+commit 6eb13cdd44e8895b2e207b6d1bc1e542c1fcc2ab
+Author: Stephen M. Cameron &lt;scameron@beardog.cce.hp.com&gt;
+Date:   Tue Jan 12 11:54:30 2010 -0700
+
+    yet another patch
+
+diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+index f5e5686..1ef3f5b 100644
+--- a/drivers/block/cciss.c
++++ b/drivers/block/cciss.c
+@@ -24,6 +24,8 @@ just making some
+ bogus changes
+ here 
+ 
++here's some stuff in yet another patch
++
+ #include &lt;linux/module.h&gt;
+ #include &lt;linux/interrupt.h&gt;
+ #include &lt;linux/types.h&gt;
+scameron@zuul:~/src/2.6/cciss_4_6_22$
+</font></pre>
+Now, push the another-patch onto the stack:
+<pre><font face="monospace">
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg push</b>
+Checking for changes in the working directory ... done
+Pushing patch "another-patch" ... 
+  CONFLICT (content): Merge conflict in drivers/block/cciss.c
+  Error: The merge failed during "push".
+         Revert the operation with "push --undo".
+  stg push: 1 conflict(s)
+scameron@zuul:~/src/2.6/cciss_4_6_22$
+</font></pre>
+Again, a conflict:
+<pre><font face="monospace">
+just making some
+bogus changes
+here
+
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; current:drivers/block/cciss.c
+here's some stuff in yet another patch
+=======
+here's a change in
+another patch
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; patched:drivers/block/cciss.c
+
+#include &lt;linux/module.h&gt;
+
+</font></pre>
+
+Fix the conflict:
+<pre><font face="monospace">
+just making some
+bogus changes
+here
+
+here's some stuff in yet another patch
+
+here's a change in
+another patch
+
+#include &lt;linux/module.h&gt;
+</font></pre>
+Now, tell stg that we resolved the conflict, and refresh the patch:
+<pre><font face="monospace">
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>git add drivers/block/cciss.c</b>
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg refresh</b>
+Checking for changes in the working directory ... done
+Refreshing patch "another-patch" ... done
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg show</b>
+commit 9af39fb80c572e47e485d9f90d3ae0338ef4075d
+Author: Stephen M. Cameron &lt;scameron@beardog.cce.hp.com&gt;
+Date:   Tue Jan 12 12:01:36 2010 -0700
+
+    another patch
+
+diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+index 1ef3f5b..419910c 100644
+--- a/drivers/block/cciss.c
++++ b/drivers/block/cciss.c
+@@ -26,6 +26,9 @@ here
+ 
+ here's some stuff in yet another patch
+ 
++here's a change in
++another patch
++
+ #include &lt;linux/module.h&gt;
+ #include &lt;linux/interrupt.h&gt;
+ #include &lt;linux/types.h&gt;
+scameron@zuul:~/src/2.6/cciss_4_6_22$ stg series
++ some-new-patch
++ yet-another-patch
+&gt; another-patch
+scameron@zuul:~/src/2.6/cciss_4_6_22$
+</font></pre>
+<p>BTW, if you have a remove/modify conflict, that is, say one patch
+removes a file, and a later patch tries to modify it, and supposing you
+really want the file removed, the way to resolve the patch that tries
+to modify the file is to rm the file, then "git rm" the file.
+<li><b><a name="export">Exporting patches</a></b><br>
+<pre><font face="monospace">
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>stg export -d ~/some-patches</b>
+Checking for changes in the working directory ... done
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>ls ~/some-patches</b>
+another-patch  series  some-new-patch  yet-another-patch
+scameron@zuul:~/src/2.6/cciss_4_6_22$ <b>cat ~/some-patches/series</b>
+# This series applies on GIT commit 8943fb2eeda3cab5d1c8380bbeaea1dd71b40f42
+some-new-patch
+yet-another-patch
+another-patch
+scameron@zuul:~/src/2.6/cciss_4_6_22
+</font></pre>
+It is a good idea to export your patches every once in a while
+(whenever you do some amount of work you would be unhappy to
+lose, generally.)  Do not always export the patches to the same directory,
+as if you do, each export overwrites the previous set of patches, and
+you will limit your ability to recover from mistakes.  I typically use
+directory names containing a timestamp, such as "hpsa-patches-2010-01-12-1200pm"
+for this purpose.<br>
+<pre></pre>
+<li><b><a name="cvscommit">Committing patches to CVS</a></b>
+<pre></pre>
+To commit the patches to cvs, pop all but one off, via, e.g." "stg pop -n 2"
+do a "cvs diff -u" to make sure that the difference between the CVS repository
+and the working directory is the same as what "stg show" says, then do "cvs commit."
+Then, push the next patch on with "stg push", then verify "cvs diff -u" and "stg
+show" agree, then "cvs commit" again.  Repeat until all the patches you wish to
+commit are committed.  After committing the patches you want to commit, it's
+probably a good idea to "stg export" any patches not yet committed, and
+then check out a fresh CVS tree, and "stg import" those as yet uncommitted
+patches. 
+<pre></pre>
+<li><b><a name="combine">Combining patches</a></b><br> Sometimes, you may have a patch, and find
+there is another change which needs to be made which belongs in the same patch,
+and you receive this change from someone else in the form of a patch, or perhaps
+you made the change on another branch of the source code, and rather than
+re-port the whole of the patch, you just want to spread this incremental
+change through the various patchsets on various branches.  To do this, there
+is an "stg fold" command, which applies a patch, and incorporates it into the
+topmost patch.
+<p>Or, you can just position the relevant patch at the top
+of the stack, apply it with "patch", and then do stg refresh.
+<p>Or, you can use "stg squash.  Use push and pop to get the
+patches next to each other in the order you like.  Let's say you
+have patches "p1", "p2", "p3", and "p4" which you wish to combine into
+a patch named "megapatch."  You'd do:
+<pre><font face="monospace">
+	stg squash p1 p2 p3 p4 -n megapatch
+</font></pre>
+The "-n" is for "name", and is the name you want to give to the
+combined patch.
+
+<pre></pre>
+<li><b><a name="split">Splitting patches</a></b><br>Splitting patches is a bit tougher, but
+here's how I do it.  Say you have a patch, "patch-x", which you want to
+split into two patches, patch-x1, and patch-x2.  The first thing to
+do is "stg export" the patch into a file, and manipulate the patch
+stack so that "patch-x" is at the top of the stack, then "stg pop"
+the patch, so that it is not currently applied, but is the next patch
+to be applied.  Then, use "stg new patch-x1" to create a new patch
+just before "patch-x".  Next, make the changes which will go into
+patch-x1, one at a time.  
+Typically, you'll do this by using filterdiff on the
+exported patch-x to select hunks which belong in patch-x1.  After
+each hunk for patch-x1 is applied, (via, patch, wiggle, manually,
+or by whatever combination of these works best) do an "stg refresh", then an
+"stg push" to push patch-x back on, (resolving any conflicts as necessary),
+and then an "stg pop."  This "push" and "pop" will end up modifying
+patch-x, removing the bits which are in patch-x1.  In this
+way, you'll gradually build patch-x1 into what you want, and the
+pieces that go into patch-x1 will get gradually get removed from
+"patch-x" by the action of "stg push; stg pop".  When patch-x1 is
+complete, than patch-x will contain only what remains -- which will
+be patch-x2.  You can rename it by "stg rename patch-x patch-x2."
+And you will have split patch-x into patch-x1 and patch-x2.
+<pre></pre>
+<li>
+</ul>
+<a name="pitfalls">
+<h3>Some pitfalls</h3></a>
+To guard against pitfalls, you should run "stg export -d some_safe_timestamped_place" frequently
+so as not to lose your work.  For instance, I frequently do something like:
+<pre><font face="monospace">
+	stg export -d ~/hpsa-patches-2010-01-12-1108am
+</font></pre>
+specifying a different directory each time, or at least changing the
+directory name "frequently enough."   If you use the same directory,
+it will overwrite what was there, which if your intent is to make a backup,
+may defeat the purpose. 
+
+<p>Then, if disaster strikes, and you find your patches hopelessly hosed,
+you can get back to a prior sane state simply by unpacking the fresh sources
+you started with, and then doing something like this:
+<pre><font face="monospace">
+	stg import -s ~/hpsa-patches-2010-01-12-1108am/series
+</font></pre>
+
+<p><b>Pitfall 1</b>:  Making a change with the wrong patch at the top of the
+stack, and incorporating the change into the wrong patch with "stg
+refresh."  This will happen from time to time.  After awhile, you'll
+learn to be vigilant in avoiding this.  To fix this, see the section
+on "splitting" patches, or else revert back to a previously exported
+patchset that does not contain the mistake. 
+
+<p><b>Pitfall 2</b>When using wiggle to fix rejects, since wiggle outputs
+to stdout, and is not to be trusted without verifying, you generally dump
+the output into a different file, and then, when wiggle's done it's best,
+you inspect the output, possibly fixing conflicts, etc.  It is easy to forget
+when finished to copy this wiggle output file back to the original file which
+you were trying to patch.
+
+<p>There are probably other pitfalls, but those are the ones that spring to
+my mind.  The main pitfall of quilt, and Andrew Morton's patch-scripts,
+which was forgetting to inform the patch system of your intent to modify a
+file (fpatch) is absent from stgit, as it automatically detects which files
+you change.  If you <em>add</em> a new file, I think you still have to tell
+it, via "git add filename".
+
+<a name="additionaltools"><h3>Some additional tools you may find helpful.</h3></a>
+<ul>
+<li><a name="wiggle"><a href="http://neil.brown.name/wiggle/">wiggle</a></a> can be useful for getting rejected hunks
+to go in anyway.  Be careful, sometimes wiggle does completely the wrong thing without
+warning.  To compile it, you'll probably have to modify the "dotest" script and remove
+the "--quiet" option from some command (unless you're on debian).  You use it like this:
+<pre><font face="monospace">
+	wiggle filetopatch patch > someotherfile.
+</font></pre>
+You can remember the order of the argument because they are similar to patch:
+<pre><font face="monospace">
+	patch filetopatch < patch
+</font></pre>
+Don't forget after reviewing someotherfile that you need to copy it over filetopatch.
+(a mistake that is very easy to make.)
+<li><a name="patchutils"><a href="http://cyberelk.net/tim/data/patchutils/">patchutils</a></a> contains some
+useful things like "filterdiff", which can bust apart a patch into individual hunks,
+which is useful when a patch has a some rejects.  It is often the case that you can
+bust it apart into hunks, and wiggle the hunks in one by one with reduced pain.  Also
+diffstat is in there, iirc.
+<li><a href="http://www.cobite.com/cvsps/">cvsps</a>  This is useful for pulling sensible patches
+out of cvs, and examining the history in cvs (much better than cvs log, generally).<br>
+"cvsps -x -u &gt; log" gets the log, "cvsps -g -s patchsetnumber &gt; patchfile"
+to extract patches.
+</ul>
+
+<a name="competition">
+<h3>Stgit's competition</h3></a>
+<p>Lookup "guilt" (not quilt, guilt).  I don't know if it's better
+or worse than stgit.
+</body>
+</html>

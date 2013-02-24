@@ -1,0 +1,42 @@
+<html>
+<font face="helvetica">
+<title>Memory Allocation - kmalloc</title>
+<body>
+<p align=center><font size=+5>Memory Allocation - kmalloc</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li>kmalloc/kfree
+<ul>
+<li><pre>static __always_inline void *kmalloc(size_t size, gfp_t flags);</pre>
+Example:
+<pre>
+	struct mystruct *x;	
+
+	x = kmalloc(sizeof(*x), GFP_KERNEL);
+</pre>
+<li>You almost always want GFP_KERNEL for the flags argument.
+<li>kmalloc may sleep.  Do not call it when you aren't able to
+sleep, e.g. don't call it from within interrupt handlers.
+<font size=-1>GFP_ATOMIC flag may enable
+you to call kmalloc without sleeping, but if you think you need
+this, you need to think really hard to be sure you really
+do need it.</font>
+<li>kmalloc will return you a virtual address that maps to 
+a single physically contiguous virtual address range
+suitable for DMA (after mapping for DMA).
+<li>You cannot kmalloc more than 128kbytes with a single call.
+<li>You can call kfree with a NULL pointer, so there is no need to 
+do this, for example:
+<pre>
+	if (x) <font color="red">/* &lt;--- don't do this */</font>
+		kfree(x); 
+</pre>Just do<pre>
+	kfree(x);
+</pre>
+</ul>
+</ul>
+</font>
+</body>
+</html>

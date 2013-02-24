@@ -1,0 +1,23 @@
+Getting the kernel source
+configuring the kernel
+building the kernel
+installing the kernel
+booting the new kernel
+
+Tools of the trade
+git
+stg
+
+minimal module
+
+concepts:
+memory address spaces (virtual, physical, bus)
+allocating memory (kmalloc, vmalloc, ioremap, pci_consistent)
+dma-mapping.txt
+spinlocks
+mutex
+interrupt handlers
+debugging
+
+
+

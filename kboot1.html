@@ -1,0 +1,27 @@
+<html>
+<font face="helvetica">
+<title>Kernel Booting</title>
+<body>
+<p align=center><font size=+5>Kernel Booting</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<p><font face="monospace">start_kernel()</font> in
+<font face="monospace">init/main.c</font> is
+the entry point into the booting
+kernel.  Eventually, after initializing a bunch of stuff, at the end
+of start_kernel, after transforming into the hand-crafted init process,
+<font face="monospace">rest_init()</font> is called.
+
+<p><font face="monospace">rest_init()</font> starts the
+<font face="monospace">kernel_init</font> thread and 
+<font face="monospace">kthreadd</font> -- which is a thread that is used to
+start new threads -- and then calls <font face="monospace">kernel_init()</font>.  <font face="monospace">kernel_init()</font>
+calls eventually <font face="monospace">init_post()</font>
+ which tries to execute -- <font face="monospace">kernel_execve</font> -- 
+<font face="monospace">/init, /sbin/init, /etc/init, /bin/init,</font> or 
+<font face="monospace">/bin/sh</font>, in that order.
+</ul>
+</font>
+</body>
+</html>

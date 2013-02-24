@@ -1,0 +1,45 @@
+<html>
+<font face="helvetica">
+<title>What is the kernel?</title>
+<body>
+<p align=center><font size=+5>What is the kernel?</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Kernel_%28computing%29">According to wikipedia</a>
+<li>Here is a crude ascii block diagram of the kernel
+<font size=-1>because I'm old school that way (and very lazy): </font>
+<pre>
+	+------------------------------------------+
+	|  +--------------------------------+      |
+	|  | Applications                   |      |
+	|  +-------------+------------------+      |
+	|       |        |                         |
+	|       |        V                         |
+	|       |     +---------------------+      |
+	|       |     | various libraries   |      |
+	|       |     +--------+------------+      |
+	|       |              |                   |
+	|       V              V                   |
+	|  +--------------------------------+      |
+	|  | glibc (the C library)          |      |
+	|  +------------+-------------------+      |
+	|               |                          |
+	|               V                          |
+	|  +================================+      |
+	|  ||The system call interface     ||      |
+	|  |+------------------------------+|      |
+	|  || The Kernel                   ||      |
+	|  |+------------------------------+|      |
+	|  || arch dependent kernel code   ||      |
+	|  +================================+      |
+	|             |                            |
+	|             V                            |
+	|        The hardware                      |
+	+------------------------------------------+
+</pre>
+</ul>
+</font>
+</body>
+</html>

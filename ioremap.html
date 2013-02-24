@@ -1,0 +1,66 @@
+<html>
+<font face="helvetica">
+<title>Memory Allocation - ioremap</title>
+<body>
+<p align=center><font size=+5>Memory Allocation - ioremap</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li>ioremap creates a mapping to a physical address, that is, it modifies
+page tables to create a virtual address which corresponds to a physical address. 
+This is most useful for doing memory mapped i/o to devices.  For example, you
+might have a device like this:
+<pre>
+[scameron@localhost lk]$ lspci -v -s 0e:00.0
+0e:00.0 RAID bus controller: Hewlett-Packard Company Smart Array Controller (rev 03)
+	Subsystem: Hewlett-Packard Company Smart Array P800
+	Flags: bus master, fast devsel, latency 0, IRQ 16
+	<font color="red">Memory at fdf00000 (64-bit, non-prefetchable) [size=1M]</font>
+	I/O ports at 6000 [size=256]
+	<font color="red">Memory at fdef0000 (64-bit, non-prefetchable) [size=4K]</font>
+	[virtual] Expansion ROM at f0200000 [disabled] [size=256K]
+	Capabilities: <access denied>
+	Kernel driver in use: cciss
+	Kernel modules: cciss, hpsa
+</pre>
+Notice that it has two memory regions at physical addresses
+0xfdf00000 and 0xfdef0000.  Ioremap can create a virtual
+address that maps to those physical locations, and then the 
+driver can access the device by reading and writing to
+virtual addresses within the regions returned by ioremap.
+<p>Notice, that you should not attempt access ioremapped
+device memory in exactly the same way that you would access
+normal RAM.  That is, do not do something like this:
+<pre>
+	u32 *a;
+
+	a = ioremap(physical_address, size);
+	*a = some_value; <font color="red">This is incorrect!</font>
+</pre>
+Instead, you have to use special accessor functions defined
+in io.h (indirectly in asm-generic/io.h):
+<pre>
+	u8 readb(const volatile void __iomem *addr)
+	u16 readw(const volatile void __iomem *addr) 
+	u32 readl(const volatile void __iomem *addr)
+	u64 readq(const volatile void __iomem *addr)
+	void writeb(u8 value, const volatile void __iomem *addr)
+	void writew(u16 value, const volatile void __iomem *addr) 
+	void writel(u32 value, const volatile void __iomem *addr)
+	void writeq(u64 value, const volatile void __iomem *addr)
+</pre>
+These read or write 8-bit, 16-bit, 32-bit and 64 bit quantities
+safely to or from ioremapped memory.  So, the above incorrect code
+would be rewritten:
+<pre>
+	u32 __iomem *a;
+	
+	a = ioremap(physical_address, size);
+	writel(some_value, a);
+</pre>
+
+</ul>
+</font>
+</body>
+</html>

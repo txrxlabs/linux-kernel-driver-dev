@@ -1,0 +1,35 @@
+<html>
+<font face="helvetica">
+<title>DMA - Direct Memory Access</title>
+<body>
+<p align=center><font size=+5>DMA - Direct Memory Access</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li>Some devices can directly read or write into the computer's
+(or "the host's") memory.
+<li>Typically, the CPU will send some command down to the device,
+("hey disk drive, write this memory out to disk") or some external
+event will occurr (a network packet arrives) which will
+trigger the device to do DMA.
+<li>Memory is <em>very slow</em> compared to the CPU.
+<li>Consequently, there are often several levels of CPU caching.
+<li>DMA cannot read or write from CPU caches.
+<li>Consequently, care must be taken with DMA to ensure caching 
+does not corrupt your data.
+<li>For DMA going <em>to</em> the device, the data must be pushed
+out of the cache into RAM prior to the DMA operation, and the CPU
+must not touch the data until the DMA is completed.
+<li>For DMA coming <em>from</em> the device, the CPU must invalidate
+any cache entries for the memory prior to accessing any of the DMA'ed
+data.
+<li>The details of how this happens differ from one architecture to
+another.
+<li>Linux provides a DMA API to hide these differences from the
+driver developer, and make disparate architectures look the same.
+</ul>
+<p align=right><a href="DMA2.html">Next</a>
+</font>
+</body>
+</html>

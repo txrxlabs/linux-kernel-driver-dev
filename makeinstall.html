@@ -1,0 +1,52 @@
+<html>
+<font face="helvetica">
+<title>Behind the scenes of "make install"</title>
+<body>
+<p align=center><font size=+5>Behind the scenes of "make install"</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<p>So what happens when you type "make modules_install"
+and "make install?"
+<p>Well, "<font face="monospace">make modules_install</font>" just copies the *.ko files
+into <font face="monospace">lib/modules/<em>kernel-version</em>/kernel/drivers/.../</font>
+<p>"<font face="monospace">make install</font>" does the following:
+<ol>
+<li>Compressed "vmlinuz" kernel image is placed into the /boot directory
+<li>initrd image is created and placed into /boot
+<li>/boot/grub/menu.lst is modified.
+</ol>
+(except on Ubuntu, in which case only step 1. is performed,
+and steps 2 and 3 must be performed manually by running (as root):
+<ol>
+<li>update-initramfs -c <em>kernel version</em>
+<li>update-grub
+</ol>
+
+<p>And what is in the initrd image?  The initrd image is
+a compressed cpio archive containing modules needed at boot
+time (e.g. storage drivers) and scripts to load them.  Newer
+distros (e.g. RHEL6) use an initramfs rather than an initrd
+image.  To unpack an initrd image, first make a copy of it 
+in a new empty directory somewhere safe.  then: 
+<pre><font face="monospace">
+	# gunzip - &lt; <em>initrdimage</em> | cpio -imduv
+	<em>. . . output omitted . . . </em>
+	# /bin/ls
+	bin  conf  etc	init  lib  sbin  scripts  usr
+	#
+</font></pre>
+
+<p>You can change the contents (for example, edit the
+init script, add <a href="http://www.busybox.net/">busybox</a>
+into the initrd image for debugging,
+etc.) and pack it back up into a new initrd image like so:
+<pre><font face="monospace">
+	# find . | cpio --create --format='newc' > /tmp/newinitrd
+	# gzip -9 /tmp/newinitrd
+</font>
+</pre>
+
+</font>
+</body>
+</html>

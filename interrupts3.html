@@ -1,0 +1,125 @@
+<html>
+<font face="helvetica">
+<title>Interrupts (part 3)</title>
+<body>
+<p align=center><font size=+5>Interrupts (part 3)</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<ul>
+<li>Ok, so how <em>does</em> the device driver know what
+IRQ number to use?
+<p>It's kind of hardware dependent.
+<p>For PCI devices which don't use MSI or MSIX, the struct pci_dev
+structure which is passed into your driver's .probe function
+will contain the irq number to use:
+<pre>
+	static int __devinit my_drivers_probe_func(struct pci_dev *pdev,
+			const struct pci_device_id *entry)
+
+	{
+		int myirq = pdev-&gt;irq;
+	
+		blah blah blah
+
+		if (!request_irq(myirq, ... ) {
+			...
+		}
+		...
+	}
+</pre>
+<p>For PCI devices that use MSI/MSIX (i.e. modern PCI devices),
+it's a bit more complicated.  Here's an example from the hpsa driver.
+
+<p>But first, from include/linux/pci.h, we need to know about this:
+<pre>
+struct msix_entry {
+        u32     vector; /* kernel uses to write allocated vector */
+        u16     entry;  /* driver uses to specify entry, OS writes */
+};
+</pre>
+
+Then this, from drivers/scsi/hpsa.c (my comments in red):
+<pre>
+static void __devinit hpsa_interrupt_mode(struct ctlr_info *h)
+{
+#ifdef CONFIG_PCI_MSI
+        int err;
+</pre> <font size=5 color="red">The particular device this driver deals with has four MSIX vectors. This is just an intrinsic property of the device.</font> <pre>
+        struct msix_entry hpsa_msix_entries[4] = { {0, 0}, {0, 1},
+        {0, 2}, {0, 3}
+        };
+        /* Some boards advertise MSI but don't really support it */
+        if ((h-&gt;board_id == 0x40700E11) || (h-&gt;board_id == 0x40800E11) ||
+            (h-&gt;board_id == 0x40820E11) || (h-&gt;board_id == 0x40830E11))
+                goto default_int_mode;
+</pre> <font size=5 color="red">Check if the device supports MSIX</font> <pre>
+        if (pci_find_capability(h-&gt;pdev, PCI_CAP_ID_MSIX)) {
+                dev_info(&amp;h-&gt;pdev-&gt;dev, "MSIX\n");
+</pre> <font size=5 color="red">Ask the kernel to assign us some MSIX vectors.
+They get filled in in the .vector members of elements of the
+struct msix_entry array, hpsa_msix_entries[]</font> <pre>
+                err = pci_enable_msix(h-&gt;pdev, hpsa_msix_entries, 4);
+                if (!err) {
+                        h-&gt;intr[0] = hpsa_msix_entries[0].vector;
+                        h-&gt;intr[1] = hpsa_msix_entries[1].vector;
+                        h-&gt;intr[2] = hpsa_msix_entries[2].vector;
+                        h-&gt;intr[3] = hpsa_msix_entries[3].vector;
+                        h-&gt;msix_vector = 1;
+</pre> <font size=5 color="red">Ok, we got our vectors</font> <pre>
+                        return;
+                }
+</pre> <font size=5 color="red">Or, something bad happened.</font> <pre>
+                if (err &gt; 0) {
+                        dev_warn(&amp;h-&gt;pdev-&gt;dev, "only %d MSI-X vectors "
+                               "available\n", err);
+                        goto default_int_mode;
+                } else {
+                        dev_warn(&amp;h-&gt;pdev-&gt;dev, "MSI-X init failed %d\n",
+                               err);
+                        goto default_int_mode;
+                }
+        }
+</pre> <font size=5 color="red">Check if the device supports MSI</font> <pre>
+        if (pci_find_capability(h-&gt;pdev, PCI_CAP_ID_MSI)) {
+                dev_info(&amp;h-&gt;pdev-&gt;dev, "MSI\n");
+                if (!pci_enable_msi(h-&gt;pdev))
+                        h-&gt;msi_vector = 1;
+                else
+                        dev_warn(&amp;h-&gt;pdev-&gt;dev, "MSI init failed\n");
+        }
+default_int_mode:
+#endif                          /* CONFIG_PCI_MSI */
+</pre> <font size=5 color="red">No MSI, No MSIX, do it the old fashioned way</font> <pre>
+        /* if we get here we're going to use the default interrupt mode */
+        h-&gt;intr[PERF_MODE_INT] = h-&gt;pdev-&gt;irq;
+}
+</pre>
+
+The part of the hpsa driver which actually requests IRQs is called
+after the above code is run.  Note that the above code may assign
+values to h-&gt;msix_vector and h-&gt;msi_vector.
+
+<pre>
+        if (h-&gt;msix_vector || h-&gt;msi_vector)
+                rc = request_irq(h-&gt;intr[PERF_MODE_INT], do_hpsa_intr_msi,
+                                IRQF_DISABLED, h-&gt;devname, h);
+        else
+                rc = request_irq(h-&gt;intr[PERF_MODE_INT], do_hpsa_intr_intx,
+                                IRQF_DISABLED, h-&gt;devname, h);
+        if (rc) {
+                dev_err(&amp;pdev-&gt;dev, "unable to get irq %d for %s\n",
+                       h-&gt;intr[PERF_MODE_INT], h-&gt;devname);
+                goto clean2;
+        }
+</pre>
+
+Note that this driver has different interrupt handlers depending on
+whether it's using the old fashioned i/o APIC style interrupts or
+MSI/MSIX interrupts.  This is because they need to interact with the
+device slightly differently depending on which kind of interrupts are
+being used.
+</ul>
+</font>
+</body>
+</html>
