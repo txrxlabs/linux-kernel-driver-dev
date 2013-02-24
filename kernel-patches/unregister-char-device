@@ -1,0 +1,42 @@
+unregister char device
+
+From: Stephen M. Cameron <smcameron@yahoo.com>
+
+
+---
+
+ drivers/char/demo.c |   11 ++++++++++-
+ 1 files changed, 10 insertions(+), 1 deletions(-)
+
+
+diff --git a/drivers/char/demo.c b/drivers/char/demo.c
+index 29b00cf..8fa8dbf 100644
+--- a/drivers/char/demo.c
++++ b/drivers/char/demo.c
+@@ -34,9 +34,16 @@ static int __init demo_init(void)
+ 	dev_warn(&d.pdev->dev, "Pdev allocated.\n");
+ 
+         d.chr_major = register_chrdev(0, DRVNAME, &demo_fops);
+-
++        if (d.chr_major < 0) {
++                dev_err(&d.pdev->dev,
++                        "Error %d registering chrdev\n", d.chr_major);
++                rc = d.chr_major;
++                goto undo_platform_device_add;
++        }
+ 	return 0;
+ 
++undo_platform_device_add:
++	platform_device_unregister(d.pdev);
+ undo_platform_device_alloc:
+         platform_device_put(d.pdev);
+ 
+@@ -46,6 +53,8 @@ undo_platform_device_alloc:
+ static void __exit demo_cleanup(void)
+ {
+ 	dev_warn(&d.pdev->dev, "Goodbye from the demo driver\n");
++	unregister_chrdev(d.chr_major, DRVNAME);
++
+ 	platform_device_unregister(d.pdev);
+ }
+ 

@@ -1,0 +1,76 @@
+demo: report buffer size via /sys
+
+From: Stephen M. Cameron <smcameron@yahoo.com>
+
+
+---
+
+ drivers/char/demo.c |   37 ++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 36 insertions(+), 1 deletions(-)
+
+
+diff --git a/drivers/char/demo.c b/drivers/char/demo.c
+index dedef63..38c00ee 100644
+--- a/drivers/char/demo.c
++++ b/drivers/char/demo.c
+@@ -24,6 +24,27 @@ static struct demo_device {
+ 	spinlock_t lock;
+ } d;
+ 
++static ssize_t show_buffersize(struct device *dev,
++			struct device_attribute *attr, char *buffer)
++{
++	return snprintf(buffer, 20, "%d\n", d.buffersize);
++}
++
++/* S_IRUGO means *R*eadable by *U*ser *G*roup and *O*ther 
++ * see linux/stat.h 
++ */
++static DEVICE_ATTR(buffersize, S_IRUGO, show_buffersize, NULL);
++
++static struct attribute *demo_sysfs_entries[] = {
++	&dev_attr_buffersize.attr,
++	NULL
++};
++
++static struct attribute_group demo_attribute_group = {
++	.name = NULL, /* put these In the device dir */
++	.attrs = demo_sysfs_entries,
++};
++
+ static struct class *demo_class;
+ 
+ static int demo_open(struct inode *inode, struct file *filp);
+@@ -188,8 +209,21 @@ static int __init demo_init(void)
+ 		goto undo_device_create;
+ 	memset(d.data, 'z', d.buffersize);
+ 
++	rc = sysfs_create_group(&d.device->kobj,
++			&demo_attribute_group);
++	if (rc) {
++		dev_err(&d.pdev->dev, "Error %d creating "
++			"sysfs device attributes\n", rc);
++		goto undo_kmalloc;
++	}
++
++	/* poke udev */
++	kobject_uevent(&d.device->kobj, KOBJ_CHANGE);
++
+ 	return 0;
+ 
++undo_kmalloc:
++	kfree(d.data);
+ undo_device_create:
+ 	device_destroy(demo_class, MKDEV(d.chr_major, 0));
+ undo_register_chrdev:
+@@ -207,8 +241,9 @@ undo_platform_device_alloc:
+ static void __exit demo_cleanup(void)
+ {
+ 	dev_warn(&d.pdev->dev, "Goodbye from the demo driver\n");
+-	unregister_chrdev(d.chr_major, DRVNAME);
+ 
++	sysfs_remove_group(&d.device->kobj, &demo_attribute_group);
++	unregister_chrdev(d.chr_major, DRVNAME);
+ 	platform_device_unregister(d.pdev);
+ 	device_destroy(demo_class, MKDEV(d.chr_major, 0));
+ 	class_destroy(demo_class);

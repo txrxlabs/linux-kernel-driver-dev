@@ -1,0 +1,104 @@
+demo: dynamically allocate buffer (part one)
+
+From: Stephen M. Cameron <smcameron@yahoo.com>
+
+This is in order to make it possible to resize in a later patch
+---
+
+ drivers/char/demo.c |   25 ++++++++++++++++++-------
+ 1 files changed, 18 insertions(+), 7 deletions(-)
+
+
+diff --git a/drivers/char/demo.c b/drivers/char/demo.c
+index 221b2c3..768195a 100644
+--- a/drivers/char/demo.c
++++ b/drivers/char/demo.c
+@@ -4,18 +4,21 @@
+ #include <linux/fs.h>
+ #include <linux/uaccess.h>
+ #include <linux/demo_ioctl.h>
++#include <linux/slab.h> /* for kmalloc/kfree */
+ 
+ MODULE_AUTHOR("Stephen M. Cameron <scameron@beardog.cce.hp.com>");
+ MODULE_DESCRIPTION("Demo driver");
+ MODULE_LICENSE("GPL");
+ 
+ #define DRVNAME "demo"
++#define INITIAL_BUFFER_SIZE 1000
+ 
+ static struct demo_device {
+ 	struct platform_device *pdev; 
+ 	int chr_major;
+ 	struct device *device;
+-	unsigned char data[1000];
++	unsigned char *data;
++	int buffersize;
+ 	spinlock_t lock;
+ } d;
+ 
+@@ -54,7 +57,7 @@ static long demo_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
+ 			return -EFAULT;
+ 		}
+ 		spin_lock_irqsave(&d.lock, flags);
+-		memset(d.data, data, sizeof(d.data));
++		memset(d.data, data, d.buffersize);
+ 		spin_unlock_irqrestore(&d.lock, flags);
+ 		return 0;
+ 	default:
+@@ -80,10 +83,10 @@ static ssize_t demo_read(struct file *filp, char __user *ubuf,
+ 	int len;
+ 	unsigned long flags;
+ 	
+-	if (count < sizeof(d.data))
++	if (count < d.buffersize)
+ 		len = count;
+ 	else
+-		len = sizeof(d.data);
++		len = d.buffersize;
+ 
+ 	spin_lock_irqsave(&d.lock, flags);
+ 	if (copy_to_user(ubuf, d.data, len)) {
+@@ -99,8 +102,8 @@ static ssize_t demo_write(struct file *filp, const char __user *ubuf,
+ {
+ 	unsigned long flags;
+ 
+-	if (count > sizeof(d.data))
+-		count = sizeof(d.data);
++	if (count > d.buffersize)
++		count = sizeof(d.buffersize);
+ 	spin_lock_irqsave(&d.lock, flags);
+ 	if (copy_from_user(d.data, ubuf, count)) {
+ 		spin_unlock_irqrestore(&d.lock, flags);
+@@ -121,7 +124,6 @@ static int __init demo_init(void)
+ 
+ 	printk(KERN_WARNING "Hello from the demo driver\n");
+ 
+-	memset(d.data, 'z', sizeof(d.data));
+ 	spin_lock_init(&d.lock);
+ 
+ 	/* support dev_dbg() with pdev->dev */
+@@ -160,8 +162,16 @@ static int __init demo_init(void)
+ 		goto undo_register_chrdev;
+ 	}
+ 
++	d.buffersize = INITIAL_BUFFER_SIZE;
++	d.data = kmalloc(d.buffersize, GFP_KERNEL);
++	if (!d.data)
++		goto undo_device_create;
++	memset(d.data, 'z', d.buffersize);
++
+ 	return 0;
+ 
++undo_device_create:
++	device_destroy(demo_class, MKDEV(d.chr_major, 0));
+ undo_register_chrdev:
+ 	unregister_chrdev(d.chr_major, DRVNAME);
+ undo_class_create:
+@@ -182,6 +192,7 @@ static void __exit demo_cleanup(void)
+ 	platform_device_unregister(d.pdev);
+ 	device_destroy(demo_class, MKDEV(d.chr_major, 0));
+ 	class_destroy(demo_class);
++	kfree(d.data);
+ }
+ 
+ module_init(demo_init);

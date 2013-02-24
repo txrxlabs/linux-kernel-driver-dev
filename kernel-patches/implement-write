@@ -1,0 +1,29 @@
+Implement write.  We can put something other than z's
+
+From: Stephen M. Cameron <smcameron@yahoo.com>
+
+into the buffer and read whatever we put in there back
+out.
+---
+
+ drivers/char/demo.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
+
+
+diff --git a/drivers/char/demo.c b/drivers/char/demo.c
+index 62864a4..cb805bb 100644
+--- a/drivers/char/demo.c
++++ b/drivers/char/demo.c
+@@ -63,7 +63,11 @@ static ssize_t demo_read(struct file *filp, char __user *ubuf,
+ static ssize_t demo_write(struct file *filp, const char __user *ubuf,
+                                size_t count, loff_t *offp)
+ {
+-	return 0;
++	if (count > sizeof(d.data))
++		count = sizeof(d.data);
++	if (copy_from_user(d.data, ubuf, count))
++		return -EFAULT;
++	return count;
+ }
+ 
+ static int demo_release(struct inode *inode, struct file *filp)

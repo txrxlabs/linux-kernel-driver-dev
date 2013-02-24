@@ -1,0 +1,52 @@
+register class device (so that udev can make device nodes for us)
+
+From: Stephen M. Cameron <smcameron@yahoo.com>
+
+
+---
+
+ drivers/char/demo.c |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+), 0 deletions(-)
+
+
+diff --git a/drivers/char/demo.c b/drivers/char/demo.c
+index 0ea0cf9..06357dc 100644
+--- a/drivers/char/demo.c
++++ b/drivers/char/demo.c
+@@ -12,6 +12,7 @@ MODULE_LICENSE("GPL");
+ static struct demo_device {
+ 	struct platform_device *pdev; 
+ 	int chr_major;
++	struct device *device;
+ } d;
+ 
+ static struct class *demo_class;
+@@ -91,8 +92,20 @@ static int __init demo_init(void)
+                 rc = d.chr_major;
+                 goto undo_class_create;
+         }
++
++	d.device = device_create(demo_class, NULL, MKDEV(d.chr_major, 0),
++			NULL, "demo%d", 0);
++        if (IS_ERR(d.device)) {
++                rc = PTR_ERR(d.device);
++                dev_err(&d.pdev->dev,
++			"Error %d creating device %s\n", rc, DRVNAME);
++		goto undo_register_chrdev;
++	}
++
+ 	return 0;
+ 
++undo_register_chrdev:
++	unregister_chrdev(d.chr_major, DRVNAME);
+ undo_class_create:
+ 	class_destroy(demo_class);
+ undo_platform_device_add:
+@@ -109,6 +122,7 @@ static void __exit demo_cleanup(void)
+ 	unregister_chrdev(d.chr_major, DRVNAME);
+ 
+ 	platform_device_unregister(d.pdev);
++	device_destroy(demo_class, MKDEV(d.chr_major, 0));
+ 	class_destroy(demo_class);
+ }
+ 

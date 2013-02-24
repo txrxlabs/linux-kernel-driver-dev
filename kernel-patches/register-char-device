@@ -1,0 +1,44 @@
+register a character device
+
+From: Stephen M. Cameron <smcameron@yahoo.com>
+
+
+---
+
+ drivers/char/demo.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+
+diff --git a/drivers/char/demo.c b/drivers/char/demo.c
+index c03b644..29b00cf 100644
+--- a/drivers/char/demo.c
++++ b/drivers/char/demo.c
+@@ -1,5 +1,7 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
++#include <linux/file.h>
++#include <linux/fs.h>
+ 
+ MODULE_AUTHOR("Stephen M. Cameron <scameron@beardog.cce.hp.com>");
+ MODULE_DESCRIPTION("Demo driver");
+@@ -9,8 +11,11 @@ MODULE_LICENSE("GPL");
+ 
+ static struct demo_device {
+ 	struct platform_device *pdev; 
++	int chr_major;
+ } d;
+ 
++static struct file_operations demo_fops;
++
+ static int __init demo_init(void)
+ {
+ 	int rc;
+@@ -28,6 +33,8 @@ static int __init demo_init(void)
+ 
+ 	dev_warn(&d.pdev->dev, "Pdev allocated.\n");
+ 
++        d.chr_major = register_chrdev(0, DRVNAME, &demo_fops);
++
+ 	return 0;
+ 
+ undo_platform_device_alloc:

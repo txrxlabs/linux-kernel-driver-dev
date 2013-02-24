@@ -1,0 +1,54 @@
+demo: allow buffer size to be changed via /sys
+
+From: Stephen M. Cameron <smcameron@yahoo.com>
+
+
+---
+
+ drivers/char/demo.c |   29 ++++++++++++++++++++++++++++-
+ 1 files changed, 28 insertions(+), 1 deletions(-)
+
+
+diff --git a/drivers/char/demo.c b/drivers/char/demo.c
+index 38c00ee..3bdd54e 100644
+--- a/drivers/char/demo.c
++++ b/drivers/char/demo.c
+@@ -30,10 +30,37 @@ static ssize_t show_buffersize(struct device *dev,
+ 	return snprintf(buffer, 20, "%d\n", d.buffersize);
+ }
+ 
++static ssize_t store_buffersize(struct device *dev,
++                 struct device_attribute *attr, const char *buffer,
++		size_t count)
++{
++	int val;
++        unsigned long flags;
++	unsigned char *newbuffer;
++
++	val = simple_strtoul(buffer, NULL, 0);
++	if (val < MIN_BUFFER_SIZE || val > MAX_BUFFER_SIZE)
++		return -EINVAL;
++
++	newbuffer = kmalloc(val, GFP_KERNEL);
++	if (!newbuffer)
++		return -ENOMEM;
++
++	spin_lock_irqsave(&d.lock, flags);
++	kfree(d.data);
++	d.data = newbuffer;
++	d.buffersize = val;
++	memset(d.data, 'z', d.buffersize);
++	spin_unlock_irqrestore(&d.lock, flags);
++	return count;
++}
++
+ /* S_IRUGO means *R*eadable by *U*ser *G*roup and *O*ther 
++ * S_IWUSR means *W*ritable by USeR
+  * see linux/stat.h 
+  */
+-static DEVICE_ATTR(buffersize, S_IRUGO, show_buffersize, NULL);
++static DEVICE_ATTR(buffersize, S_IRUGO | S_IWUSR,
++			show_buffersize, store_buffersize);
+ 
+ static struct attribute *demo_sysfs_entries[] = {
+ 	&dev_attr_buffersize.attr,

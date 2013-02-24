@@ -1,0 +1,78 @@
+Use spin locks to protect our buffer from concurrent accesses.
+
+From: Stephen M. Cameron <smcameron@yahoo.com>
+
+
+---
+
+ drivers/char/demo.c |   19 ++++++++++++++++---
+ 1 files changed, 16 insertions(+), 3 deletions(-)
+
+
+diff --git a/drivers/char/demo.c b/drivers/char/demo.c
+index cb805bb..bc4c86f 100644
+--- a/drivers/char/demo.c
++++ b/drivers/char/demo.c
+@@ -15,6 +15,7 @@ static struct demo_device {
+ 	int chr_major;
+ 	struct device *device;
+ 	unsigned char data[1000];
++	spinlock_t lock;
+ } d;
+ 
+ static struct class *demo_class;
+@@ -23,7 +24,7 @@ static int demo_open(struct inode *inode, struct file *filp);
+ static ssize_t demo_read(struct file *filp, char __user *ubuf,
+                               size_t count, loff_t *offp);
+ static ssize_t demo_write(struct file *filp, const char __user *ubuf,
+-                               size_t count, loff_t *offp);
++                              size_t count, loff_t *offp);
+ static int demo_release(struct inode *inode, struct file *filp);
+ 
+ static struct file_operations demo_fops = {
+@@ -49,24 +50,35 @@ static ssize_t demo_read(struct file *filp, char __user *ubuf,
+                               size_t count, loff_t *offp)
+ {
+ 	int len;
++	unsigned long flags;
+ 	
+ 	if (count < sizeof(d.data))
+ 		len = count;
+ 	else
+ 		len = sizeof(d.data);
+ 
+-	if (copy_to_user(ubuf, d.data, len))
++	spin_lock_irqsave(&d.lock, flags);
++	if (copy_to_user(ubuf, d.data, len)) {
++		spin_unlock_irqrestore(&d.lock, flags);
+ 		return -EFAULT;
++	}
++	spin_unlock_irqrestore(&d.lock, flags);
+ 	return len;
+ }
+ 
+ static ssize_t demo_write(struct file *filp, const char __user *ubuf,
+                                size_t count, loff_t *offp)
+ {
++	unsigned long flags;
++
+ 	if (count > sizeof(d.data))
+ 		count = sizeof(d.data);
+-	if (copy_from_user(d.data, ubuf, count))
++	spin_lock_irqsave(&d.lock, flags);
++	if (copy_from_user(d.data, ubuf, count)) {
++		spin_unlock_irqrestore(&d.lock, flags);
+ 		return -EFAULT;
++	}
++	spin_unlock_irqrestore(&d.lock, flags);
+ 	return count;
+ }
+ 
+@@ -82,6 +94,7 @@ static int __init demo_init(void)
+ 	printk(KERN_WARNING "Hello from the demo driver\n");
+ 
+ 	memset(d.data, 'z', sizeof(d.data));
++	spin_lock_init(&d.lock);
+ 
+ 	/* support dev_dbg() with pdev->dev */
+ 	d.pdev = platform_device_alloc(DRVNAME, 0);

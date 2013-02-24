@@ -1,0 +1,63 @@
+implement open
+
+From: Stephen M. Cameron <smcameron@yahoo.com>
+
+
+---
+
+ drivers/char/demo.c |   32 ++++++++++++++++++++++----------
+ 1 files changed, 22 insertions(+), 10 deletions(-)
+
+
+diff --git a/drivers/char/demo.c b/drivers/char/demo.c
+index 283e478..04df1c5 100644
+--- a/drivers/char/demo.c
++++ b/drivers/char/demo.c
+@@ -14,9 +14,30 @@ static struct demo_device {
+ 	int chr_major;
+ } d;
+ 
++static int demo_open(struct inode *inode, struct file *filp);
++static ssize_t demo_read(struct file *filp, char __user *ubuf,
++                              size_t count, loff_t *offp);
++static ssize_t demo_write(struct file *filp, const char __user *ubuf,
++                               size_t count, loff_t *offp);
++static int demo_release(struct inode *inode, struct file *filp);
++
++static struct file_operations demo_fops = {
++        .owner = THIS_MODULE,
++        .open  = demo_open,
++        .read  = demo_read,
++        .write = demo_write,
++        .release = demo_release,
++        .llseek = no_llseek,
++};
++
+ static int demo_open(struct inode *inode, struct file *filp)
+ {
+-	return 0;
++        unsigned int m = iminor(inode);
++        filp->private_data = &demo_fops;
++
++        if (m > 0)
++                return -EINVAL;
++        return nonseekable_open(inode, filp);
+ }
+ 
+ static ssize_t demo_read(struct file *filp, char __user *ubuf,
+@@ -36,15 +57,6 @@ static int demo_release(struct inode *inode, struct file *filp)
+ 	return 0;
+ }
+ 
+-static struct file_operations demo_fops = {
+-        .owner = THIS_MODULE,
+-        .open  = demo_open,
+-        .read  = demo_read,
+-        .write = demo_write,
+-        .release = demo_release,
+-        .llseek = no_llseek,
+-};
+-
+ static int __init demo_init(void)
+ {
+ 	int rc;

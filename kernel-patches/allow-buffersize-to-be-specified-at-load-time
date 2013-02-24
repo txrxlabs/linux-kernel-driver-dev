@@ -1,0 +1,42 @@
+demo: allow buffersize to be specified at module load time
+
+From: Stephen M. Cameron <smcameron@yahoo.com>
+
+in /sys/class/demo/demo0/buffersize
+---
+
+ drivers/char/demo.c |   11 +++++++++--
+ 1 files changed, 9 insertions(+), 2 deletions(-)
+
+
+diff --git a/drivers/char/demo.c b/drivers/char/demo.c
+index 3bdd54e..d515d12 100644
+--- a/drivers/char/demo.c
++++ b/drivers/char/demo.c
+@@ -11,9 +11,13 @@ MODULE_DESCRIPTION("Demo driver");
+ MODULE_LICENSE("GPL");
+ 
+ #define DRVNAME "demo"
+-#define INITIAL_BUFFER_SIZE 1000
++
++#define DEFAULT_BUFFER_SIZE 1000
+ #define MAX_BUFFER_SIZE 10000
+ #define MIN_BUFFER_SIZE 100
++static int buffer_size = DEFAULT_BUFFER_SIZE;
++module_param(buffer_size, int, S_IRUGO|S_IWUSR);
++MODULE_PARM_DESC(buffer_size, "Specifies initial buffer size");
+ 
+ static struct demo_device {
+ 	struct platform_device *pdev; 
+@@ -230,7 +234,10 @@ static int __init demo_init(void)
+ 		goto undo_register_chrdev;
+ 	}
+ 
+-	d.buffersize = INITIAL_BUFFER_SIZE;
++	if (buffer_size < MIN_BUFFER_SIZE ||
++		buffer_size > MAX_BUFFER_SIZE)
++		buffer_size = DEFAULT_BUFFER_SIZE;
++	d.buffersize = buffer_size;
+ 	d.data = kmalloc(d.buffersize, GFP_KERNEL);
+ 	if (!d.data)
+ 		goto undo_device_create;

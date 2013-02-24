@@ -1,0 +1,40 @@
+debug
+
+From: Stephen M. Cameron <smcameron@yahoo.com>
+
+
+---
+
+ drivers/char/demo.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
+
+
+diff --git a/drivers/char/demo.c b/drivers/char/demo.c
+index 34ab006..221b2c3 100644
+--- a/drivers/char/demo.c
++++ b/drivers/char/demo.c
+@@ -45,12 +45,14 @@ static long demo_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
+ 	unsigned long flags;
+ 	void __user *argp = (void __user *)arg;
+ 
+-	printk(KERN_WARNING "demo_ioctl called\n");
++	printk(KERN_WARNING "demo_ioctl called, cmd = 0x%08x\n", cmd);
+ 
+ 	switch (cmd) {
+ 	case DEMO_ZAP_BUFFER:
+-		if (copy_from_user(&data, argp, 1))
++		if (copy_from_user(&data, argp, 1)) {
++			dev_warn(&d.pdev->dev, "copy_from_user failed\n");
+ 			return -EFAULT;
++		}
+ 		spin_lock_irqsave(&d.lock, flags);
+ 		memset(d.data, data, sizeof(d.data));
+ 		spin_unlock_irqrestore(&d.lock, flags);
+@@ -58,6 +60,7 @@ static long demo_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
+ 	default:
+ 		break;
+ 	}
++	dev_warn(&d.pdev->dev, "Bad ioctl\n");
+ 	return -ENOTTY;
+ }
+ 

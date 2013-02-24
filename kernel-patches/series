@@ -1,0 +1,21 @@
+# This series applies on GIT commit 3f54d92ef987fc38569490cba0ff9930579c6b09
+add-demo-module
+register-platform-device
+register-char-device
+unregister-char-device
+fill-in-file-operations
+implement-open
+register-class
+register-class-device
+implement-read
+implement-write
+use-spin-locks
+implement-ioctl-part-one
+implement-ioctl-part-two
+debug
+allow-buffer-to-be-resized-part-one
+allow-buffer-to-be-resized-part-two
+report-buffer-size-via-sys
+allow-buffer-size-to-be-changed-via-sys
+allow-buffersize-to-be-specified-at-load-time
+allow-crash-via-sys

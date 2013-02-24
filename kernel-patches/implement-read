@@ -1,0 +1,58 @@
+Implement read.  We imagine our device has some buffer
+
+From: Stephen M. Cameron <smcameron@yahoo.com>
+
+full of z's that we can read.
+---
+
+ drivers/char/demo.c |   15 ++++++++++++++-
+ 1 files changed, 14 insertions(+), 1 deletions(-)
+
+
+diff --git a/drivers/char/demo.c b/drivers/char/demo.c
+index 06357dc..62864a4 100644
+--- a/drivers/char/demo.c
++++ b/drivers/char/demo.c
+@@ -2,6 +2,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/file.h>
+ #include <linux/fs.h>
++#include <linux/uaccess.h>
+ 
+ MODULE_AUTHOR("Stephen M. Cameron <scameron@beardog.cce.hp.com>");
+ MODULE_DESCRIPTION("Demo driver");
+@@ -13,6 +14,7 @@ static struct demo_device {
+ 	struct platform_device *pdev; 
+ 	int chr_major;
+ 	struct device *device;
++	unsigned char data[1000];
+ } d;
+ 
+ static struct class *demo_class;
+@@ -46,7 +48,16 @@ static int demo_open(struct inode *inode, struct file *filp)
+ static ssize_t demo_read(struct file *filp, char __user *ubuf,
+                               size_t count, loff_t *offp)
+ {
+-	return 0;
++	int len;
++	
++	if (count < sizeof(d.data))
++		len = count;
++	else
++		len = sizeof(d.data);
++
++	if (copy_to_user(ubuf, d.data, len))
++		return -EFAULT;
++	return len;
+ }
+ 
+ static ssize_t demo_write(struct file *filp, const char __user *ubuf,
+@@ -66,6 +77,8 @@ static int __init demo_init(void)
+ 
+ 	printk(KERN_WARNING "Hello from the demo driver\n");
+ 
++	memset(d.data, 'z', sizeof(d.data));
++
+ 	/* support dev_dbg() with pdev->dev */
+ 	d.pdev = platform_device_alloc(DRVNAME, 0);
+ 	if (!d.pdev)

@@ -1,0 +1,62 @@
+Register as a "platform" device.  This is so
+
+From: Stephen M. Cameron <smcameron@yahoo.com>
+
+that we can use dev_warn(), dev_dbg(), dev_error(), etc.
+---
+
+ drivers/char/demo.c |   29 ++++++++++++++++++++++++++++-
+ 1 files changed, 28 insertions(+), 1 deletions(-)
+
+
+diff --git a/drivers/char/demo.c b/drivers/char/demo.c
+index ba805f9..c03b644 100644
+--- a/drivers/char/demo.c
++++ b/drivers/char/demo.c
+@@ -1,18 +1,45 @@
+ #include <linux/module.h>
++#include <linux/platform_device.h>
+ 
+ MODULE_AUTHOR("Stephen M. Cameron <scameron@beardog.cce.hp.com>");
+ MODULE_DESCRIPTION("Demo driver");
+ MODULE_LICENSE("GPL");
+ 
++#define DRVNAME "demo"
++
++static struct demo_device {
++	struct platform_device *pdev; 
++} d;
++
+ static int __init demo_init(void)
+ {
++	int rc;
++
+ 	printk(KERN_WARNING "Hello from the demo driver\n");
++
++	/* support dev_dbg() with pdev->dev */
++	d.pdev = platform_device_alloc(DRVNAME, 0);
++	if (!d.pdev)
++		return -ENOMEM;
++
++	rc = platform_device_add(d.pdev);
++	if (rc)
++		goto undo_platform_device_alloc;
++
++	dev_warn(&d.pdev->dev, "Pdev allocated.\n");
++
+ 	return 0;
++
++undo_platform_device_alloc:
++        platform_device_put(d.pdev);
++
++	return rc;
+ }
+ 
+ static void __exit demo_cleanup(void)
+ {
+-	printk(KERN_WARNING "Goodbye from the demo driver\n");
++	dev_warn(&d.pdev->dev, "Goodbye from the demo driver\n");
++	platform_device_unregister(d.pdev);
+ }
+ 
+ module_init(demo_init);

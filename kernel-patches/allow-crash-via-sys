@@ -1,0 +1,42 @@
+allow crash via sys
+
+From: Stephen M. Cameron <smcameron@yahoo.com>
+
+
+---
+
+ drivers/char/demo.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+), 0 deletions(-)
+
+
+diff --git a/drivers/char/demo.c b/drivers/char/demo.c
+index d515d12..0fd7df8 100644
+--- a/drivers/char/demo.c
++++ b/drivers/char/demo.c
+@@ -28,6 +28,14 @@ static struct demo_device {
+ 	spinlock_t lock;
+ } d;
+ 
++static ssize_t store_crash(struct device *dev,
++                 struct device_attribute *attr, const char *buffer,
++		size_t count)
++{
++	kfree(d.data);
++	d.data = NULL;
++}
++
+ static ssize_t show_buffersize(struct device *dev,
+ 			struct device_attribute *attr, char *buffer)
+ {
+@@ -65,9 +73,11 @@ static ssize_t store_buffersize(struct device *dev,
+  */
+ static DEVICE_ATTR(buffersize, S_IRUGO | S_IWUSR,
+ 			show_buffersize, store_buffersize);
++static DEVICE_ATTR(crash, S_IWUSR, NULL, store_crash);
+ 
+ static struct attribute *demo_sysfs_entries[] = {
+ 	&dev_attr_buffersize.attr,
++	&dev_attr_crash.attr,
+ 	NULL
+ };
+ 
