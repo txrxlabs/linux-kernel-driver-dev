@@ -5,15 +5,13 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 be overwritten with any single character via a
 call to ioctl.
 ---
-
  drivers/char/demo.c        |   19 ++++++++++++++++++-
  include/linux/demo_ioctl.h |   12 ++++++++++++
  2 files changed, 30 insertions(+), 1 deletions(-)
  create mode 100644 include/linux/demo_ioctl.h
 
-
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index 41b91da..34ab006 100644
+index 1f75c7d..4f0b440 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -3,6 +3,7 @@
@@ -24,7 +22,7 @@ index 41b91da..34ab006 100644
  
  MODULE_AUTHOR("Stephen M. Cameron <scameron@beardog.cce.hp.com>");
  MODULE_DESCRIPTION("Demo driver");
-@@ -40,8 +41,24 @@ static struct file_operations demo_fops = {
+@@ -40,8 +41,24 @@ static const struct file_operations demo_fops = {
  
  static long demo_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
  {

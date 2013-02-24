@@ -4,13 +4,11 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 
 in /sys/class/demo/demo0/buffersize
 ---
-
  drivers/char/demo.c |   11 +++++++++--
  1 files changed, 9 insertions(+), 2 deletions(-)
 
-
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index 3bdd54e..d515d12 100644
+index 3f2d1b1..20f912c 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -11,9 +11,13 @@ MODULE_DESCRIPTION("Demo driver");
@@ -27,7 +25,7 @@ index 3bdd54e..d515d12 100644
 +MODULE_PARM_DESC(buffer_size, "Specifies initial buffer size");
  
  static struct demo_device {
- 	struct platform_device *pdev; 
+ 	struct platform_device *pdev;
 @@ -230,7 +234,10 @@ static int __init demo_init(void)
  		goto undo_register_chrdev;
  	}

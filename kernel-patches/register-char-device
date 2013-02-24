@@ -4,13 +4,11 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 
 
 ---
-
  drivers/char/demo.c |    7 +++++++
  1 files changed, 7 insertions(+), 0 deletions(-)
 
-
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index c03b644..29b00cf 100644
+index 662308b..2b25045 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -1,5 +1,7 @@
@@ -24,11 +22,11 @@ index c03b644..29b00cf 100644
 @@ -9,8 +11,11 @@ MODULE_LICENSE("GPL");
  
  static struct demo_device {
- 	struct platform_device *pdev; 
+ 	struct platform_device *pdev;
 +	int chr_major;
  } d;
  
-+static struct file_operations demo_fops;
++static const struct file_operations demo_fops = { 0 };
 +
  static int __init demo_init(void)
  {
@@ -37,7 +35,7 @@ index c03b644..29b00cf 100644
  
  	dev_warn(&d.pdev->dev, "Pdev allocated.\n");
  
-+        d.chr_major = register_chrdev(0, DRVNAME, &demo_fops);
++	d.chr_major = register_chrdev(0, DRVNAME, &demo_fops);
 +
  	return 0;
  

@@ -4,27 +4,25 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 
 do anything yet).
 ---
-
  drivers/char/demo.c |    8 ++++++++
  1 files changed, 8 insertions(+), 0 deletions(-)
 
-
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index bc4c86f..41b91da 100644
+index 75a1c71..1f75c7d 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -26,6 +26,7 @@ static ssize_t demo_read(struct file *filp, char __user *ubuf,
  static ssize_t demo_write(struct file *filp, const char __user *ubuf,
-                               size_t count, loff_t *offp);
+ 				size_t count, loff_t *offp);
  static int demo_release(struct inode *inode, struct file *filp);
 +static long demo_ioctl(struct file *fp, unsigned int cmd, unsigned long arg);
  
- static struct file_operations demo_fops = {
-         .owner = THIS_MODULE,
-@@ -34,8 +35,15 @@ static struct file_operations demo_fops = {
-         .write = demo_write,
-         .release = demo_release,
-         .llseek = no_llseek,
+ static const struct file_operations demo_fops = {
+ 	.owner = THIS_MODULE,
+@@ -34,8 +35,15 @@ static const struct file_operations demo_fops = {
+ 	.write = demo_write,
+ 	.release = demo_release,
+ 	.llseek = no_llseek,
 +	.unlocked_ioctl = demo_ioctl,
  };
  
@@ -36,4 +34,4 @@ index bc4c86f..41b91da 100644
 +
  static int demo_open(struct inode *inode, struct file *filp)
  {
-         unsigned int m = iminor(inode);
+ 	unsigned int m = iminor(inode);

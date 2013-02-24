@@ -1,25 +1,20 @@
-demo: Add demo module
+Add demo module
 
-From: Stephen M. Cameron <smcameron@yahoo.com>
+From: Stephen M. Cameron <stephenmcameron@gmail.com>
 
-Adds a minimal demo module that doesn't do anything
-but which can be loaded and unloaded.
 
-Signed-off-by: Stephen M. Cameron <scameron@beardog.cce.hp.com>
 ---
-
  drivers/char/Kconfig  |    5 +++++
  drivers/char/Makefile |    1 +
  drivers/char/demo.c   |   21 +++++++++++++++++++++
  3 files changed, 27 insertions(+), 0 deletions(-)
  create mode 100644 drivers/char/demo.c
 
-
 diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index b7980a8..bd68f02 100644
+index 72bedad..9337c5c 100644
 --- a/drivers/char/Kconfig
 +++ b/drivers/char/Kconfig
-@@ -1047,6 +1047,11 @@ config NSC_GPIO
+@@ -496,6 +496,11 @@ config NSC_GPIO
  	  pc8736x_gpio drivers.  If those drivers are built as
  	  modules, this one will be too, named nsc_gpio
  
@@ -32,17 +27,17 @@ index b7980a8..bd68f02 100644
  	tristate "RAW driver (/dev/raw/rawN)"
  	depends on BLOCK
 diff --git a/drivers/char/Makefile b/drivers/char/Makefile
-index 8238f89..3e7f4ce 100644
+index 7ff1d0d..c128a25 100644
 --- a/drivers/char/Makefile
 +++ b/drivers/char/Makefile
-@@ -32,6 +32,7 @@ obj-$(CONFIG_SX)		+= sx.o generic_serial.o
- obj-$(CONFIG_RIO)		+= rio/ generic_serial.o
+@@ -8,6 +8,7 @@ obj-y				+= misc.o
+ obj-$(CONFIG_ATARI_DSP56K)	+= dsp56k.o
  obj-$(CONFIG_VIRTIO_CONSOLE)	+= virtio_console.o
  obj-$(CONFIG_RAW_DRIVER)	+= raw.o
 +obj-$(CONFIG_DEMO_DRIVER)	+= demo.o
  obj-$(CONFIG_SGI_SNSC)		+= snsc.o snsc_event.o
+ obj-$(CONFIG_MSM_SMD_PKT)	+= msm_smd_pkt.o
  obj-$(CONFIG_MSPEC)		+= mspec.o
- obj-$(CONFIG_MMTIMER)		+= mmtimer.o
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
 new file mode 100644
 index 0000000..ba805f9

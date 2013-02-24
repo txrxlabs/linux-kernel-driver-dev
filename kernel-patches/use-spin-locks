@@ -4,13 +4,11 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 
 
 ---
-
- drivers/char/demo.c |   19 ++++++++++++++++---
- 1 files changed, 16 insertions(+), 3 deletions(-)
-
+ drivers/char/demo.c |   17 +++++++++++++++--
+ 1 files changed, 15 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index cb805bb..bc4c86f 100644
+index a38bdbf..75a1c71 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -15,6 +15,7 @@ static struct demo_device {
@@ -21,21 +19,12 @@ index cb805bb..bc4c86f 100644
  } d;
  
  static struct class *demo_class;
-@@ -23,7 +24,7 @@ static int demo_open(struct inode *inode, struct file *filp);
- static ssize_t demo_read(struct file *filp, char __user *ubuf,
-                               size_t count, loff_t *offp);
- static ssize_t demo_write(struct file *filp, const char __user *ubuf,
--                               size_t count, loff_t *offp);
-+                              size_t count, loff_t *offp);
- static int demo_release(struct inode *inode, struct file *filp);
- 
- static struct file_operations demo_fops = {
 @@ -49,24 +50,35 @@ static ssize_t demo_read(struct file *filp, char __user *ubuf,
-                               size_t count, loff_t *offp)
+ 				size_t count, loff_t *offp)
  {
  	int len;
 +	unsigned long flags;
- 	
+ 
  	if (count < sizeof(d.data))
  		len = count;
  	else
@@ -52,7 +41,7 @@ index cb805bb..bc4c86f 100644
  }
  
  static ssize_t demo_write(struct file *filp, const char __user *ubuf,
-                                size_t count, loff_t *offp)
+ 				size_t count, loff_t *offp)
  {
 +	unsigned long flags;
 +

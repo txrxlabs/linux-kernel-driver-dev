@@ -4,13 +4,11 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 
 This is in order to make it possible to resize in a later patch
 ---
-
  drivers/char/demo.c |   25 ++++++++++++++++++-------
  1 files changed, 18 insertions(+), 7 deletions(-)
 
-
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index 221b2c3..768195a 100644
+index 0ca29c3..47e144f 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -4,18 +4,21 @@
@@ -27,7 +25,7 @@ index 221b2c3..768195a 100644
 +#define INITIAL_BUFFER_SIZE 1000
  
  static struct demo_device {
- 	struct platform_device *pdev; 
+ 	struct platform_device *pdev;
  	int chr_major;
  	struct device *device;
 -	unsigned char data[1000];
@@ -48,7 +46,7 @@ index 221b2c3..768195a 100644
 @@ -80,10 +83,10 @@ static ssize_t demo_read(struct file *filp, char __user *ubuf,
  	int len;
  	unsigned long flags;
- 	
+ 
 -	if (count < sizeof(d.data))
 +	if (count < d.buffersize)
  		len = count;

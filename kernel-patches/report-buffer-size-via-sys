@@ -4,13 +4,11 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 
 
 ---
-
  drivers/char/demo.c |   37 ++++++++++++++++++++++++++++++++++++-
  1 files changed, 36 insertions(+), 1 deletions(-)
 
-
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index dedef63..38c00ee 100644
+index e3e7124..afc25f5 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -24,6 +24,27 @@ static struct demo_device {
@@ -23,8 +21,8 @@ index dedef63..38c00ee 100644
 +	return snprintf(buffer, 20, "%d\n", d.buffersize);
 +}
 +
-+/* S_IRUGO means *R*eadable by *U*ser *G*roup and *O*ther 
-+ * see linux/stat.h 
++/* S_IRUGO means *R*eadable by *U*ser *G*roup and *O*ther
++ * see linux/stat.h
 + */
 +static DEVICE_ATTR(buffersize, S_IRUGO, show_buffersize, NULL);
 +
@@ -48,8 +46,8 @@ index dedef63..38c00ee 100644
 +	rc = sysfs_create_group(&d.device->kobj,
 +			&demo_attribute_group);
 +	if (rc) {
-+		dev_err(&d.pdev->dev, "Error %d creating "
-+			"sysfs device attributes\n", rc);
++		dev_err(&d.pdev->dev,
++			"Error %d creating sysfs device attributes\n", rc);
 +		goto undo_kmalloc;
 +	}
 +

@@ -4,13 +4,11 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 
 full of z's that we can read.
 ---
-
  drivers/char/demo.c |   15 ++++++++++++++-
  1 files changed, 14 insertions(+), 1 deletions(-)
 
-
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index 06357dc..62864a4 100644
+index af6ceb5..5f7da04 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -2,6 +2,7 @@
@@ -22,7 +20,7 @@ index 06357dc..62864a4 100644
  MODULE_AUTHOR("Stephen M. Cameron <scameron@beardog.cce.hp.com>");
  MODULE_DESCRIPTION("Demo driver");
 @@ -13,6 +14,7 @@ static struct demo_device {
- 	struct platform_device *pdev; 
+ 	struct platform_device *pdev;
  	int chr_major;
  	struct device *device;
 +	unsigned char data[1000];
@@ -31,11 +29,11 @@ index 06357dc..62864a4 100644
  static struct class *demo_class;
 @@ -46,7 +48,16 @@ static int demo_open(struct inode *inode, struct file *filp)
  static ssize_t demo_read(struct file *filp, char __user *ubuf,
-                               size_t count, loff_t *offp)
+ 				size_t count, loff_t *offp)
  {
 -	return 0;
 +	int len;
-+	
++
 +	if (count < sizeof(d.data))
 +		len = count;
 +	else

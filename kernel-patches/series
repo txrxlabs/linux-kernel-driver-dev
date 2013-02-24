@@ -1,4 +1,4 @@
-# This series applies on GIT commit 3f54d92ef987fc38569490cba0ff9930579c6b09
+# This series applies on GIT commit fff1ffb01783941bcc6d0b0b4ee116933be4eb45
 add-demo-module
 register-platform-device
 register-char-device

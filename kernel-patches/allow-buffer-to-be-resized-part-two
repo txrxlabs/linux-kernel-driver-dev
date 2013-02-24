@@ -4,14 +4,12 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 
 
 ---
-
  drivers/char/demo.c        |   20 ++++++++++++++++++++
  include/linux/demo_ioctl.h |    2 ++
  2 files changed, 22 insertions(+), 0 deletions(-)
 
-
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index 768195a..dedef63 100644
+index 47e144f..e3e7124 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -12,6 +12,8 @@ MODULE_LICENSE("GPL");
@@ -22,7 +20,7 @@ index 768195a..dedef63 100644
 +#define MIN_BUFFER_SIZE 100
  
  static struct demo_device {
- 	struct platform_device *pdev; 
+ 	struct platform_device *pdev;
 @@ -46,6 +48,8 @@ static long demo_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
  {
  	unsigned char data;

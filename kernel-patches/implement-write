@@ -5,18 +5,16 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 into the buffer and read whatever we put in there back
 out.
 ---
-
  drivers/char/demo.c |    6 +++++-
  1 files changed, 5 insertions(+), 1 deletions(-)
 
-
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index 62864a4..cb805bb 100644
+index 5f7da04..a38bdbf 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -63,7 +63,11 @@ static ssize_t demo_read(struct file *filp, char __user *ubuf,
  static ssize_t demo_write(struct file *filp, const char __user *ubuf,
-                                size_t count, loff_t *offp)
+ 				size_t count, loff_t *offp)
  {
 -	return 0;
 +	if (count > sizeof(d.data))

@@ -4,13 +4,11 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 
 
 ---
-
  drivers/char/demo.c |   15 ++++++++++++++-
  1 files changed, 14 insertions(+), 1 deletions(-)
 
-
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index 04df1c5..0ea0cf9 100644
+index 7a3f778..07017fd 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -14,6 +14,8 @@ static struct demo_device {
@@ -21,27 +19,27 @@ index 04df1c5..0ea0cf9 100644
 +
  static int demo_open(struct inode *inode, struct file *filp);
  static ssize_t demo_read(struct file *filp, char __user *ubuf,
-                               size_t count, loff_t *offp);
+ 				size_t count, loff_t *offp);
 @@ -74,15 +76,25 @@ static int __init demo_init(void)
  
  	dev_warn(&d.pdev->dev, "Pdev allocated.\n");
  
 +	demo_class = class_create(THIS_MODULE, DRVNAME);
-+        if (IS_ERR(demo_class)) {
-+                rc = PTR_ERR(demo_class);
-+                dev_err(&d.pdev->dev,
++	if (IS_ERR(demo_class)) {
++		rc = PTR_ERR(demo_class);
++		dev_err(&d.pdev->dev,
 +			"Error %d creating %s class\n", rc, DRVNAME);
 +		goto undo_platform_device_add;
-+        }
++	}
 +
-         d.chr_major = register_chrdev(0, DRVNAME, &demo_fops);
-         if (d.chr_major < 0) {
-                 dev_err(&d.pdev->dev,
-                         "Error %d registering chrdev\n", d.chr_major);
-                 rc = d.chr_major;
--                goto undo_platform_device_add;
-+                goto undo_class_create;
-         }
+ 	d.chr_major = register_chrdev(0, DRVNAME, &demo_fops);
+ 	if (d.chr_major < 0) {
+ 		dev_err(&d.pdev->dev,
+ 			"Error %d registering chrdev\n", d.chr_major);
+ 		rc = d.chr_major;
+-		goto undo_platform_device_add;
++		goto undo_class_create;
+ 	}
  	return 0;
  
 +undo_class_create:

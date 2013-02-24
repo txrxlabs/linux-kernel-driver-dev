@@ -4,33 +4,31 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 
 
 ---
-
  drivers/char/demo.c |   31 ++++++++++++++++++++++++++++++-
  1 files changed, 30 insertions(+), 1 deletions(-)
 
-
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index 8fa8dbf..283e478 100644
+index 4515744..a3827a8 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -14,7 +14,36 @@ static struct demo_device {
  	int chr_major;
  } d;
  
--static struct file_operations demo_fops;
+-static const struct file_operations demo_fops = { 0 };
 +static int demo_open(struct inode *inode, struct file *filp)
 +{
 +	return 0;
 +}
 +
 +static ssize_t demo_read(struct file *filp, char __user *ubuf,
-+                              size_t count, loff_t *offp)
++				size_t count, loff_t *offp)
 +{
 +	return 0;
 +}
 +
 +static ssize_t demo_write(struct file *filp, const char __user *ubuf,
-+                               size_t count, loff_t *offp)
++				size_t count, loff_t *offp)
 +{
 +	return 0;
 +}
@@ -40,13 +38,13 @@ index 8fa8dbf..283e478 100644
 +	return 0;
 +}
 +
-+static struct file_operations demo_fops = {
-+        .owner = THIS_MODULE,
-+        .open  = demo_open,
-+        .read  = demo_read,
-+        .write = demo_write,
-+        .release = demo_release,
-+        .llseek = no_llseek,
++static const struct file_operations demo_fops = {
++	.owner = THIS_MODULE,
++	.open  = demo_open,
++	.read  = demo_read,
++	.write = demo_write,
++	.release = demo_release,
++	.llseek = no_llseek,
 +};
  
  static int __init demo_init(void)

@@ -4,13 +4,11 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 
 
 ---
-
  drivers/char/demo.c |    7 +++++--
  1 files changed, 5 insertions(+), 2 deletions(-)
 
-
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index 34ab006..221b2c3 100644
+index 4f0b440..0ca29c3 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -45,12 +45,14 @@ static long demo_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)

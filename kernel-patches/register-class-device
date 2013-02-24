@@ -4,33 +4,31 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 
 
 ---
-
  drivers/char/demo.c |   14 ++++++++++++++
  1 files changed, 14 insertions(+), 0 deletions(-)
 
-
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index 0ea0cf9..06357dc 100644
+index 07017fd..af6ceb5 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -12,6 +12,7 @@ MODULE_LICENSE("GPL");
  static struct demo_device {
- 	struct platform_device *pdev; 
+ 	struct platform_device *pdev;
  	int chr_major;
 +	struct device *device;
  } d;
  
  static struct class *demo_class;
 @@ -91,8 +92,20 @@ static int __init demo_init(void)
-                 rc = d.chr_major;
-                 goto undo_class_create;
-         }
+ 		rc = d.chr_major;
+ 		goto undo_class_create;
+ 	}
 +
 +	d.device = device_create(demo_class, NULL, MKDEV(d.chr_major, 0),
 +			NULL, "demo%d", 0);
-+        if (IS_ERR(d.device)) {
-+                rc = PTR_ERR(d.device);
-+                dev_err(&d.pdev->dev,
++	if (IS_ERR(d.device)) {
++		rc = PTR_ERR(d.device);
++		dev_err(&d.pdev->dev,
 +			"Error %d creating device %s\n", rc, DRVNAME);
 +		goto undo_register_chrdev;
 +	}

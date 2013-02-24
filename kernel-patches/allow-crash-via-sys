@@ -4,13 +4,11 @@ From: Stephen M. Cameron <smcameron@yahoo.com>
 
 
 ---
-
  drivers/char/demo.c |   10 ++++++++++
  1 files changed, 10 insertions(+), 0 deletions(-)
 
-
 diff --git a/drivers/char/demo.c b/drivers/char/demo.c
-index d515d12..0fd7df8 100644
+index 20f912c..0c8c289 100644
 --- a/drivers/char/demo.c
 +++ b/drivers/char/demo.c
 @@ -28,6 +28,14 @@ static struct demo_device {
@@ -18,7 +16,7 @@ index d515d12..0fd7df8 100644
  } d;
  
 +static ssize_t store_crash(struct device *dev,
-+                 struct device_attribute *attr, const char *buffer,
++		struct device_attribute *attr, const char *buffer,
 +		size_t count)
 +{
 +	kfree(d.data);
