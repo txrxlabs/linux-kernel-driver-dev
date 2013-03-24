@@ -1,0 +1,67 @@
+<html>
+<font face="helvetica">
+<title>Spin Lock Variants</title>
+<body>
+<p align=center><font size=+5>Spin Lock Variants</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<p>How do you know which variant of spin_lock to use?
+<p>Assuming a spin lock is appropriate, <b>you can't go
+wrong with the irqsave/irqrestore</b> variants.  
+<p>But they are slower.  In performance sensitive
+code, you may want to consider the other variants.
+<p>Which variant you may use depends on two things:
+<ol>
+<li>In what contexts are the data you are protecting with
+the lock accessed?
+<p>Possible answers: Data is accessed from 
+<ul>
+<li>A: only from interrupt context,
+<li>B: only from process context,
+<li>C: both process and interrupt contexts.
+</ul>
+
+<li><p>In what context is this particular bit of code you are writing to
+access the data executing?  
+<p>Possible answers are: 
+<ol>
+<li>interrupt context
+<li>process context
+<li>sometimes interrupt context, sometimes process context.
+</ol>
+</ol>
+<table border=2 width=90%>
+<font size=+3>
+<tr>
+<td></td>
+<td><b>1: code executes only in interrupt context</b></td>
+<td><b>2: code executes only in process context</b></td>
+<td><b>3: code executes in process and interrupt context</b></td>
+</tr>
+<tr>
+<td><b>A: Data accessed only interrupt context</b></td>
+<td>Interrupts already disabled, use spin_lock(), spin_unlock()</td>
+<td>N/A</td>
+<td>N/A</td>
+<tr>
+<tr>
+<td><b>B: Data accessed only
+in process context</b></td>
+<td>N/A</td>
+<td>spin_lock() / spin_unlock();</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><b>C: Data accessed in both
+process and interrupt contexts</b></td>
+<td>Interrupts already disabled, use spin_lock(), spin_unlock()</td>
+<td>Interrupts are ensabled, use spin_lock_irq(), spin_unlock_irq()</td>
+<td>Interrupts state unknown, use spin_lock_irqsave(), spin_unlock_irqsave()</td>
+</tr>
+</font>
+</table>
+<p align=right><a href="next.html"></a>
+</font>
+</body>
+</html>

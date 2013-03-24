@@ -1,0 +1,49 @@
+<html>
+<font face="helvetica">
+<title>Spin Locks</title>
+<body>
+<p align=center><font size=+5>Spin Locks</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<p>Spin locks are one of the main synchronization methods
+used within the kernel.  Read Documentation/spinlocks.txt.
+(You will probably be confused.  This is normal.)
+<p>There are three main variants of the spin lock 
+functions:
+<ul>
+<li>
+<pre>
+	spin_lock_irqsave(&lock, flags);
+	...
+	spin_unlock_irqrestore(&lock, flags);
+</pre>
+Spin_lock_irqsave() records the current cpu flags (mainly whether interrupts on the
+local cpu are currently disabled or not), disables interrupts on the local cpu, and
+obtains the spin lock.  Spin_lock_irqrestore() releases the spin lock, restores the
+cpu flags to the previous state (if interrupts were disabled/enabled prior to
+spin_lock_irqsave, they are restored to disabled/enabled state.  Puts interrupts back
+how they were prior to spin_lock_irqsave().  This is the safest way, as it always
+does the right thing.
+<li>
+<pre>
+	spin_lock_irq(&lock);
+	...
+	spin_unlock_irq(&lock);
+</pre>
+Spin_lock_irq disables interrupts and obtains the spin lock.  Prior interrupt
+state is not recorded.  spin_lock_irq releases the spin lock and <em>unconditionally</em>
+enables interupts.   You had better be damn sure interrupts are enabled if you
+call spin_lock_irq(); / spin_unlock_irq();
+<li>
+<pre>
+	spin_lock(&lock);
+	...
+	spin_unlock(&lock);
+</pre>
+<p>spin_lock() obtains the spin lock -- interrupt state is not affected.  Spin_unlock()
+releases the spin_lock, interrupt state is not affected.
+<p align=right><a href="spinlocks2.html">Next</a>
+</font>
+</body>
+</html>
