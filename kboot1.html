@@ -16,10 +16,11 @@ of start_kernel, after transforming into the hand-crafted init process,
 <p><font face="monospace">rest_init()</font> starts the
 <font face="monospace">kernel_init</font> thread and 
 <font face="monospace">kthreadd</font> -- which is a thread that is used to
-start new threads -- and then calls <font face="monospace">kernel_init()</font>.  <font face="monospace">kernel_init()</font>
-calls eventually <font face="monospace">init_post()</font>
- which tries to execute -- <font face="monospace">kernel_execve</font> -- 
-<font face="monospace">/init, /sbin/init, /etc/init, /bin/init,</font> or 
+start new threads.  <font face="monospace">kernel_init()</font>
+tries to execute an init program via a series of calls to <font face="monospace">run_init_process</font>,
+which relies on <font face="monospace">do_execve (in fs/exec.c)</font> to do the execution.
+It will attempt to execute
+<font face="monospace">/sbin/init, /etc/init, /bin/init,</font> or 
 <font face="monospace">/bin/sh</font>, in that order.
 </ul>
 </font>
