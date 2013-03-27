@@ -14,6 +14,36 @@ glibc functions you're probably already familiar with:
 <font face="monospace">open, close, read, write, chown,
 kill, mount,</font> and so on.   
 
+<p>For example, the open() system call is defined in
+<font face="monospace">fs/open.c</font> (using a macro
+<font face="monospace">
+SYSCALL_DEFINE3</font>
+which is defined in <font face="monospace">include/linux/syscalls.h</font>):
+<font face="monospace">
+<pre>
+SYSCALL_DEFINE3(open, const char __user *, filename, int, flags, umode_t, mode)
+{
+        long ret;
+
+        if (force_o_largefile())
+                flags |= O_LARGEFILE;
+	ret = do_sys_open(AT_FDCWD, filename, flags, mode);
+	[...]
+</pre>
+</font>
+<p>If you're looking for a syscall entry point, you can grep for <font face="monospace">SYSCALL_DEFINE</font>.
+For example, suppose you want to know where the "unlink" system call is defined:
+<font face="monospace">
+<pre>
+[scameron@localhost linux-3.9-rc4]$ find . -name '*.c' -print | xargs grep SYSCALL_DEFINE | grep unlink
+./ipc/mqueue.c:SYSCALL_DEFINE1(mq_unlink, const char __user *, u_name)
+./fs/namei.c:SYSCALL_DEFINE3(unlinkat, int, dfd, const char __user *, pathname, int, flag)
+./fs/namei.c:SYSCALL_DEFINE1(unlink, const char __user *, pathname)
+[scameron@localhost linux-3.9-rc4]$
+</pre>
+</font>
+
+
 </font>
 </body>
 </html>
