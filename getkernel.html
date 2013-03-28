@@ -26,31 +26,26 @@ update-grub
 <li>Linus's tree:
 <pre>
 export http_proxy=<em>whatever your http proxy is</em>  (you may not need this step)
-git clone http://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+git clone http://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 </pre>
 <li>You may need some one else's branch of Linus's tree, say Jens Axboe's
 block tree:
 <pre>
 cd linux*
-git remote add jens http://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-2.6-block.git
+git remote add jens http://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git
 git remote update
 git branch -a
 </pre>
 This will show you a list of branches in Jens's tree.  He typically
 has some branch called "jens/for-2.6.xx-next" (or jens/for-3.xx-next
 these days) which is what will eventually get pulled into Linus's
-tree for the next kernel.  You can make a get that like...
+tree for the next kernel.  You can get that like...
 <pre>
-git checkout -b my-whatever-branch jens/for-2.6.34-next
+git checkout -b my-whatever-branch jens/for-next
 </pre>
-<li>Or maybe you need (SCSI maintainer) James Bottomley's tree:
-<pre>
-git remote add james http://git.kernel.org/pub/scm/linux/kernel/git/jejb/scsi-misc-2.6.git
-</pre>
-And he has several branches.
 <p>Or more likely you need somebody else's tree, depending on what
 you're working on.   See the MAINTAINERS file in the top directory
-of the linux kernel source.
+of the linux kernel source.  And you can browse <a href="https://git.kernel.org">https://git.kernel.org</a>
 
 <p>Usually though, either Linus's tree or the latest tarball on
 kernel.org will be sufficiently new for you to work with.
