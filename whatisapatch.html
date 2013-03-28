@@ -15,6 +15,7 @@ a set of instructions, P, which will transform A into B.
 <li>As a command, it would be "diff -u A B &gt; P"
 which you can think of algebraically as: "P = B - A"
 or as "compute the editing instructions to transform A into B".
+<p>For example, consider two files, A and B:
 <li>
 <pre>
 [scameron@localhost ~]$ cat A
@@ -37,21 +38,30 @@ this is line 4
 -this is line three
 +this is line 3 
 +this is line 4
-[scameron@localhost ~]$ 
 </pre>
-<li>The "patch" program is used to apply the instructions
+<p><li>The "patch" program is used to apply the instructions
 computed by "diff" to a text file.
-<li>Note: The text file which you apply the patch does not need
-to be identical to the files which were used to compute
-the difference.
-<li>As a command:  "patch A &lt; P" will transform A into B.
+As a command:  "patch A &lt; P" will transform A into B.
+<pre>
+[scameron@localhost ~]$ patch A < P
+patching file A
+[scameron@localhost ~]$ diff -u A B
+[scameron@localhost ~]$
+</pre>
 <li>Algebraically, you can think of the above command as "A + P = B"
+<li><b>Important Point: The text file which to you apply the patch need not 
+be identical to the file which was originally used to compute the difference.</b>
 <li>Suppose you have two sets of code which are nearly the same but
 slightly differenct, A1 and A2.  Suppose You make a modification
 to A1 to produce B1.  Suppose you want to make the same modifcation
 to A2 to produce B2.  Instead of doing it manually, you can do:
 <pre>
 	diff -u A1 B1 &gt; P
+</pre>
+At this point, P will contain instructions to transform A1 into B1.
+Now we can apply instructions P to file A2 even though A2 is not
+identical to A1, and it will mostly work so long as A2 is "close enough" to A1.
+<pre>
 	patch A2 &lt; P &gt; B2
 </pre>
 <li>Example:
