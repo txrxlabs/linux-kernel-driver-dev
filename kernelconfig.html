@@ -11,7 +11,8 @@ There are several ways to approach this.
 <ul>
 <li><b>Method 1</b>  Copy the .config file from the kernel
 already running on your system, and run "make oldconfig"
-and then press <em>Enter</em> a whole bunch.  This method
+and then press <em>Enter</em> a whole bunch.  
+<blockquote>This method
 has the advantage that it is very likely to work without
 problems.  It has the disadvantage that the .config file
 of most distros is deliberately very general purpose, and
@@ -22,15 +23,17 @@ makes the compiling process take longer.  On some distros
 kernel source RPM, then run "rpmbuild -bp" on the .spec 
 file in /usr/src/redhat/..., and recover the generated 
 .config file from the /usr/src/redhat/.../BUILD directory.
-No idea about how ubuntu does it.
+No idea about how ubuntu does it.</blockquote>
 
 <li><b>Method 2</b>  Customize the kernel config file with
-"make menuconfig".  This option has the advantage that you
+"make menuconfig".  
+<blockquote>This option has the advantage that you
 can omit modules for hardware which you do not have, thus
 saving compile time, but has the disadvantage that it takes
 time to manually omit these items, and it is easy to make a
 mistake which will cause the system to either not boot or 
 be missing some functionality (e.g. network, sound, etc.)
+</blockquote>
 </ul>
 <p>If you choose to customize your kernel, "lspci -k" and
 "lsmod" and "modinfo" commands can help you discover what
