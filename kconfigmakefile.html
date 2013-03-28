@@ -1,0 +1,48 @@
+<html>
+<font face="helvetica">
+<title>Modifying Kconfig and Makefile</title>
+<body>
+<p align=center><font size=+5>Modifying Kconfig and Makefile</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<p>If you want to build your module within the kernel source tree,
+you'll need to modify the appropriate Kconfig and makefile.  Suppose
+for instance you want your driver to be added in drivers/char and
+you want your driver to be called "demo":
+<font face="monospace">
+<pre>
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index 72bedad..9337c5c 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -496,6 +496,11 @@ config NSC_GPIO
+ 	  pc8736x_gpio drivers.  If those drivers are built as
+ 	  modules, this one will be too, named nsc_gpio
+ 
++config DEMO_DRIVER
++	tristate "DEMO driver"
++	help
++	   The Demo driver does pretty much nothing.
++
+ config RAW_DRIVER
+ 	tristate "RAW driver (/dev/raw/rawN)"
+ 	depends on BLOCK
+diff --git a/drivers/char/Makefile b/drivers/char/Makefile
+index 7ff1d0d..c128a25 100644
+--- a/drivers/char/Makefile
++++ b/drivers/char/Makefile
+@@ -8,6 +8,7 @@ obj-y				+= misc.o
+ obj-$(CONFIG_ATARI_DSP56K)	+= dsp56k.o
+ obj-$(CONFIG_VIRTIO_CONSOLE)	+= virtio_console.o
+ obj-$(CONFIG_RAW_DRIVER)	+= raw.o
++obj-$(CONFIG_DEMO_DRIVER)	+= demo.o
+ obj-$(CONFIG_SGI_SNSC)		+= snsc.o snsc_event.o
+ obj-$(CONFIG_MSM_SMD_PKT)	+= msm_smd_pkt.o
+ obj-$(CONFIG_MSPEC)		+= mspec.o
+</pre>
+</font>
+<p align=right><a href="next.html">Next</a>
+</font>
+</body>
+</html>

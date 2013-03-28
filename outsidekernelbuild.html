@@ -1,0 +1,36 @@
+<html>
+<font face="helvetica">
+<title>Building Outside the Kernel Source</title>
+<body>
+<p align=center><font size=+5>Building Outside the Kernel Source</font>
+<hr>
+<a href="contents.html">Contents</a>
+<font size=+3>
+<p>Example Makefile
+<font face="monospace">
+<pre>
+
+DRIVERNAME=demo
+
+EXTRA_CFLAGS += -g
+
+ifneq ($(KERNELRELEASE),)
+   obj-m := ${DRIVERNAME}.o
+	 
+else
+   KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+   PWD := $(shell pwd)
+
+default:
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+
+clean: 
+	rm -rf .tmp*
+	rm -f *.o *.ko* *.gz .*.cmd *.mod.c
+	rm -f Module.* modules.order description-pak
+
+endif
+<p align=right><a href="next.html">Next</a>
+</font>
+</body>
+</html>
