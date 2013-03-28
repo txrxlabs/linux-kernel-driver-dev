@@ -46,7 +46,7 @@ index 0000000..ba805f9
 @@ -0,0 +1,21 @@
 +#include <linux/module.h>
 +
-+MODULE_AUTHOR("Stephen M. Cameron <scameron@beardog.cce.hp.com>");
++MODULE_AUTHOR("Stephen M. Cameron <stephenmcameron@gmail.com>");
 +MODULE_DESCRIPTION("Demo driver");
 +MODULE_LICENSE("GPL");
 +

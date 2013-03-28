@@ -1,6 +1,6 @@
 Implement ioctl part two:  Allow the buffer to
 
-From: Stephen M. Cameron <smcameron@yahoo.com>
+From: Stephen M. Cameron <stephenmcameron@gmail.com>
 
 be overwritten with any single character via a
 call to ioctl.
@@ -20,7 +20,7 @@ index 1f75c7d..4f0b440 100644
  #include <linux/uaccess.h>
 +#include <linux/demo_ioctl.h>
  
- MODULE_AUTHOR("Stephen M. Cameron <scameron@beardog.cce.hp.com>");
+ MODULE_AUTHOR("Stephen M. Cameron <stephenmcameron@gmail.com>");
  MODULE_DESCRIPTION("Demo driver");
 @@ -40,8 +41,24 @@ static const struct file_operations demo_fops = {
  

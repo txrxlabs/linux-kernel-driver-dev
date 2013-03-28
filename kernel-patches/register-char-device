@@ -1,6 +1,6 @@
 register a character device
 
-From: Stephen M. Cameron <smcameron@yahoo.com>
+From: Stephen M. Cameron <stephenmcameron@gmail.com>
 
 
 ---
@@ -17,7 +17,7 @@ index 662308b..2b25045 100644
 +#include <linux/file.h>
 +#include <linux/fs.h>
  
- MODULE_AUTHOR("Stephen M. Cameron <scameron@beardog.cce.hp.com>");
+ MODULE_AUTHOR("Stephen M. Cameron <stephenmcameron@gmail.com>");
  MODULE_DESCRIPTION("Demo driver");
 @@ -9,8 +11,11 @@ MODULE_LICENSE("GPL");
  

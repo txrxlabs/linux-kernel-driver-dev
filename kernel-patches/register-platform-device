@@ -1,6 +1,6 @@
 Register as a "platform" device.  This is so
 
-From: Stephen M. Cameron <smcameron@yahoo.com>
+From: Stephen M. Cameron <stephenmcameron@gmail.com>
 
 that we can use dev_warn(), dev_dbg(), dev_error(), etc.
 ---
@@ -15,7 +15,7 @@ index ba805f9..662308b 100644
  #include <linux/module.h>
 +#include <linux/platform_device.h>
  
- MODULE_AUTHOR("Stephen M. Cameron <scameron@beardog.cce.hp.com>");
+ MODULE_AUTHOR("Stephen M. Cameron <stephenmcameron@gmail.com>");
  MODULE_DESCRIPTION("Demo driver");
  MODULE_LICENSE("GPL");
  

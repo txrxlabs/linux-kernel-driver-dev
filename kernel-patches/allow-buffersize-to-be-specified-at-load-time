@@ -1,6 +1,6 @@
 demo: allow buffersize to be specified at module load time
 
-From: Stephen M. Cameron <smcameron@yahoo.com>
+From: Stephen M. Cameron <stephenmcameron@gmail.com>
 
 in /sys/class/demo/demo0/buffersize
 ---

@@ -1,6 +1,6 @@
 register class (so that udev can make device nodes for us)
 
-From: Stephen M. Cameron <smcameron@yahoo.com>
+From: Stephen M. Cameron <stephenmcameron@gmail.com>
 
 
 ---
