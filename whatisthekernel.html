@@ -9,7 +9,6 @@
 <ul>
 <li><a href="http://en.wikipedia.org/wiki/Kernel_%28computing%29">According to wikipedia</a>
 <li>Here is a crude ascii block diagram of the kernel
-<font size=-1>because I'm old school that way (and very lazy): </font>
 <pre>
 	+------------------------------------------+
 	|  +--------------------------------+      |
@@ -25,18 +24,19 @@
 	|  +--------------------------------+      |
 	|  | glibc (the C library)          |      |
 	|  +------------+-------------------+      |
-	|               |                          |
-	|               V                          |
-	|  +================================+      |
-	|  ||The system call interface     ||      |
-	|  |+------------------------------+|      |
-	|  || The Kernel                   ||      |
-	|  |+------------------------------+|      |
-	|  || arch dependent kernel code   ||      |
-	|  +================================+      |
-	|             |                            |
-	|             V                            |
-	|        The hardware                      |
+	|       |                                  |
+	|       |                                  |
+	|  +====V===========================+      |
+	|  | syscall interface              |      |
+	|  |--------------------------------|      |
+	|  |  The Kernel                    |      |
+	|  +==============|--------+--------+      |
+	|             |   | driver | driver |      |
+	|             |   ===================      |
+	|             |       |        |           |
+	|             V       V        V           |
+	|------------------------------------------|
+	|               The hardware               |
 	+------------------------------------------+
 </pre>
 </ul>
